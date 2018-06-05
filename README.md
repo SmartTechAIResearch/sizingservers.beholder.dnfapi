@@ -1,0 +1,2 @@
+# sizingservers.beholder.dnfapi
+Same as sizingservers.beholder.api, but using dotnet framework instead of dotnet core, allowing us to use the VMware SDK to retrieve vhost hardware info. This project is part of a computer hardware inventorization solution, together with sizingservers.beholder.agent and sizingservers.beholder.frontend. Agents are installed on the computers you want to inventorize. These communicate with the REST API which stores hardware info. The front-end app visualizes that info.
