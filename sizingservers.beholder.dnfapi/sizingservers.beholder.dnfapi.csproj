@@ -103,11 +103,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\APIKey.cs" />
-    <Compile Include="Models\APIKeyDA.cs" />
-    <Compile Include="Models\DataAccess.cs" />
+    <Compile Include="DA\APIKeyDA.cs" />
+    <Compile Include="DA\DataAccess.cs" />
     <Compile Include="Models\SystemInformation.cs" />
-    <Compile Include="Models\SystemInformationDA.cs" />
-    <Compile Include="Models\VMware_vHost.cs" />
+    <Compile Include="DA\SystemInformationDA.cs" />
+    <Compile Include="Models\VMwareConnectionInfos.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

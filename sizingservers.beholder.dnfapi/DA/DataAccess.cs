@@ -11,7 +11,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Web;
 
-namespace sizingservers.beholder.dnfapi.Models {
+namespace sizingservers.beholder.dnfapi.DA {
     internal static class DataAccess {
         /// <summary>
         /// Gets or sets the command timeout in seconds.

@@ -35,7 +35,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!Authorize(apiKey))
                 return null;
 
-            return Models.SystemInformationDA.GetAll().ToArray();
+            return DA.SystemInformationDA.GetAll().ToArray();
         }
         /// <summary>
         /// To POST / store a new system information in the database or replace an existing one using the hostname.
@@ -52,7 +52,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
                 return BadRequest(ModelState);
 
             systemInformation.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
-            Models.SystemInformationDA.AddOrUpdate(systemInformation);
+            DA.SystemInformationDA.AddOrUpdate(systemInformation);
 
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
         }
@@ -70,7 +70,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            Models.SystemInformationDA.Remove(hostname);
+            DA.SystemInformationDA.Remove(hostname);
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
         }
@@ -90,8 +90,8 @@ namespace sizingservers.beholder.dnfapi.Controllers {
                 return BadRequest("Given days should be an integer greater than 0.");
 
             long timeStampPastInSecondsSinceEpochUtc = (long)(DateTime.UtcNow.AddDays(days * -1) - _epochUtc).TotalSeconds;
-            var toRemove = Models.SystemInformationDA.GetAll().Where(x => x.timeStampInSecondsSinceEpochUtc <= timeStampPastInSecondsSinceEpochUtc);
-            Models.SystemInformationDA.Remove(toRemove.ToArray());
+            var toRemove = DA.SystemInformationDA.GetAll().Where(x => x.timeStampInSecondsSinceEpochUtc <= timeStampPastInSecondsSinceEpochUtc);
+            DA.SystemInformationDA.Remove(toRemove.ToArray());
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
         }
@@ -105,7 +105,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!Authorize(apiKey))
                 return Unauthorized();
 
-            Models.SystemInformationDA.Clear();
+            DA.SystemInformationDA.Clear();
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
         }
@@ -113,7 +113,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         private bool Authorize(string apiKey) {
             if (!Authorization) return true;                        
 
-            return Models.APIKeyDA.HasKey(apiKey);
+            return DA.APIKeyDA.HasKey(apiKey);
         }
     }
 }

@@ -7,22 +7,23 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace sizingservers.beholder.dnfapi.Models {
-    public class VMware_vHost {
+    public class VMwareHostConnectionInfo {
         [Key]
-        public string hostnameOrIP { get; set; }
+        public string ipOrHostname { get; set; }
+        /// <summary>
+        /// For when the current machine is a ESXi (>= 6.5) host. Assign quest ips to this range so a more usable UI can be build.
+        /// </summary>
+        public string guestHostnames { get; set; }
         /// <summary>
         /// For when the current machine is a ESXi (>= 6.5) host. Be carefull with credentials.
         /// We are interested in Vim25.HostHardwareInfo so only the property "HostSystem" with the path "hardware" should be accesible via https://ip of current machine/sdk using the Vim25 API (VMWare SDK 6.7).
         /// </summary>
-        public string esxiUsername { get; set; }
+        public string username { get; set; }
         /// <summary>
         /// For when the current machine is a ESXi (>= 6.5) host. Be carefull with credentials. 
         /// We are interested in Vim25.HostHardwareInfo so only the property "HostSystem" with the path "hardware" should be accesible via https://ip of current machine/sdk using the Vim25 API (VMWare SDK 6.7).
         /// </summary>
-        public string esxiPassword { get; set; }
-        /// <summary>
-        /// For when the current machine is a ESXi (>= 6.5) host. Assign quest ips to this range so a more usable UI can be build.
-        /// </summary>
-        public string esxiGuestIPs { get; set; }
+        public string password { get; set; }
+
     }
 }

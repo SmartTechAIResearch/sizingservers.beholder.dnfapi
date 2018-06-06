@@ -4,12 +4,13 @@
  * 
  */
 
+using sizingservers.beholder.dnfapi.Models;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Reflection;
 
-namespace sizingservers.beholder.dnfapi.Models {
+namespace sizingservers.beholder.dnfapi.DA {
     public static class SystemInformationDA {
         public static void AddOrUpdate(SystemInformation row) {
             var propNames = new List<string>();
