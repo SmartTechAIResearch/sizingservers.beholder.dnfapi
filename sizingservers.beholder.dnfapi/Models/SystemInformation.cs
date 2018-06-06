@@ -6,7 +6,6 @@
 
 using System.ComponentModel.DataAnnotations;
 
-
 namespace sizingservers.beholder.dnfapi.Models {
     /// <summary>
     /// Holds a machine's system information.
@@ -57,19 +56,5 @@ namespace sizingservers.beholder.dnfapi.Models {
         /// Tab seperated, for dbs that cannot handle arrays; Name + description + status. Example: Wi-Fi - Intel(R) Dual Band Wireless-AC 8260 (connected)
         /// </summary>
         public string nics { get; set; }
-        /// <summary>
-        /// For when the current machine is a ESXi (>= 6.5) host. Be carefull with credentials.
-        /// We are interested in Vim25.HostHardwareInfo so only the property "HostSystem" with the path "hardware" should be accesible via https://ip of current machine/sdk using the Vim25 API (VMWare SDK 6.7).
-        /// </summary>
-        public string esxiUsername { get; set; }
-        /// <summary>
-        /// For when the current machine is a ESXi (>= 6.5) host. Be carefull with credentials. 
-        /// We are interested in Vim25.HostHardwareInfo so only the property "HostSystem" with the path "hardware" should be accesible via https://ip of current machine/sdk using the Vim25 API (VMWare SDK 6.7).
-        /// </summary>
-        public string esxiPassword { get; set; }
-        /// <summary>
-        /// For when the current machine is a ESXi (>= 6.5) host. Assign quest ips to this range so a more usable UI can be build.
-        /// </summary>
-        public string esxiGuestIPs { get; set; }
     }
 }
