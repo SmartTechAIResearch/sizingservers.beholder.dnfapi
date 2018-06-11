@@ -27,7 +27,7 @@ namespace sizingservers.beholder.dnfapi.DA {
             }
 
             if (Get(row.hostname) == null) {
-                DataAccess.ExecuteSQL("Insert into SystemInformations(" + string.Join(",", propNames) + ") values(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
+                SQLiteDataAccess.ExecuteSQL("Insert into SystemInformations(" + string.Join(",", propNames) + ") values(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
             }
             else {
                 var set = new List<string>();
@@ -38,7 +38,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                 string paramName = "@param" + (++paramI);
                 parameters.Add(new SQLiteParameter(paramName, row.hostname));
 
-                DataAccess.ExecuteSQL("Update SytemInformations set " + string.Join(",", set) + " where hostname=" + paramName, CommandType.Text, null, parameters.ToArray());
+                SQLiteDataAccess.ExecuteSQL("Update SytemInformations set " + string.Join(",", set) + " where hostname=" + paramName, CommandType.Text, null, parameters.ToArray());
             }
         }
 
@@ -60,13 +60,13 @@ namespace sizingservers.beholder.dnfapi.DA {
                 parameters.Add(new SQLiteParameter(paramName, hostname));
             }
 
-            DataAccess.ExecuteSQL("Delete from SystemInformations where hostname in(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
+            SQLiteDataAccess.ExecuteSQL("Delete from SystemInformations where hostname in(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
         }
         public static void Clear() {
-            DataAccess.ExecuteSQL("Delete from SystemInformations");
+            SQLiteDataAccess.ExecuteSQL("Delete from SystemInformations");
         }
         public static IEnumerable<SystemInformation> GetAll() {
-            var dt = DataAccess.GetDataTable("Select * from SystemInformations");
+            var dt = SQLiteDataAccess.GetDataTable("Select * from SystemInformations");
 
             var all = new SystemInformation[dt.Rows.Count];
             for (int i = 0; i != all.Length; i++)
@@ -74,7 +74,7 @@ namespace sizingservers.beholder.dnfapi.DA {
         }
 
         public static SystemInformation Get(string hostname) {
-            var dt = DataAccess.GetDataTable("Select * from SystemInformations where hostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", hostname));
+            var dt = SQLiteDataAccess.GetDataTable("Select * from SystemInformations where hostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", hostname));
             if (dt.Rows.Count == 0) return null;
 
             return Parse(dt.Rows[0]);

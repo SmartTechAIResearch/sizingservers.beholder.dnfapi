@@ -13,26 +13,13 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         private static DateTime _epochUtc = new DateTime(1970, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc);
 
         /// <summary>
-        /// Some sort of hack to get if authorization should be enabled or not (appsettings.json).
-        /// </summary>
-        public static bool Authorization { get; set; }
-
-        /// <summary>
-        /// GET "pong" if the api is reachable.
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public string Ping() {
-            return "pong";
-        }
-        /// <summary>
         /// GET all stored system informations.
         /// </summary>
         /// <param name="apiKey"></param>
         /// <returns></returns>
         [HttpGet]
         public Models.SystemInformation[] List(string apiKey = null) {
-            if (!Authorize(apiKey))
+            if (!AuthorizationHelper.Authorize(apiKey))
                 return null;
 
             return DA.SystemInformationDA.GetAll().ToArray();
@@ -45,7 +32,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpPost]
         public IHttpActionResult Report([FromBody]Models.SystemInformation systemInformation, string apiKey = null) {
-            if (!Authorize(apiKey))
+            if (!AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             if (!ModelState.IsValid)
@@ -64,7 +51,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpDelete]
         public IHttpActionResult Remove(string hostname, string apiKey = null) {
-            if (!Authorize(apiKey))
+            if (!AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             if (!ModelState.IsValid)
@@ -83,7 +70,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpPut]
         public IHttpActionResult CleanOlderThan(int days, string apiKey = null) {
-            if (!Authorize(apiKey))
+            if (!AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             if (!ModelState.IsValid && days < 1)
@@ -102,18 +89,12 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpPut]
         public IHttpActionResult Clear(string apiKey = null) {
-            if (!Authorize(apiKey))
+            if (!AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             DA.SystemInformationDA.Clear();
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
-        }
-
-        private bool Authorize(string apiKey) {
-            if (!Authorization) return true;                        
-
-            return DA.APIKeyDA.HasKey(apiKey);
         }
     }
 }

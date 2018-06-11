@@ -1,0 +1,181 @@
+﻿/*
+ * 2018 Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ */
+
+using sizingservers.beholder.dnfapi.Models;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.ServiceModel;
+using System.Xml;
+using Vim25Api;
+using VMware.Binding.WsTrust;
+using System.Collections.Generic;
+using System;
+
+namespace sizingservers.beholder.dnfapi.DA {
+    /// <summary>
+    /// For VMware vsphere SDK 6.7
+    /// </summary>
+    public static class VMwareHostSystemInformationRetriever {
+        private static DateTime _epochUtc = new DateTime(1970, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc);
+
+        static VMwareHostSystemInformationRetriever() {
+            //Ignore invalid SSL certs.
+            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback((sender, certificate, chain, policyErrors) => { return true; });
+        }
+        public static VmWareHostSystemInformation Retrieve(VMwareHostConnectionInfo hostConnectionInfo) {
+            var sysinfo = new VmWareHostSystemInformation();
+
+            sysinfo.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
+
+            VimPortType service = null;
+            ServiceContent serviceContent = null;
+
+            //Connect
+            string url = "https://" + hostConnectionInfo.ipOrHostname + "/sdk";
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
+            service = GetVimService(url, hostConnectionInfo.username, hostConnectionInfo.password);
+
+            var svcRef = new ManagedObjectReference();
+            svcRef.type = "ServiceInstance";
+            svcRef.Value = "ServiceInstance";
+            serviceContent = service.RetrieveServiceContent(svcRef);
+
+
+            //Finally connect, we do not need the user session later on.
+            UserSession session = service.Login(serviceContent.sessionManager, hostConnectionInfo.username, hostConnectionInfo.password, null);
+
+            //Get the host ref by IP or by host name.
+            IPAddress address;
+            ManagedObjectReference reference = IPAddress.TryParse(hostConnectionInfo.ipOrHostname, out address) ?
+                service.FindByIp(serviceContent.searchIndex, null, hostConnectionInfo.ipOrHostname, false) :
+                service.FindByDnsName(serviceContent.searchIndex, null, Dns.GetHostEntry(hostConnectionInfo.ipOrHostname).HostName, false);
+
+
+            var systemInfo = GetPropertyContent(service, serviceContent, "HostSystem", "hardware.systemInfo", reference)[0].propSet[0].val as HostSystemInfo;
+            sysinfo.system = systemInfo.vendor + " " + systemInfo.model;
+
+            var biosInfo = GetPropertyContent(service, serviceContent, "HostSystem", "hardware.biosInfo", reference)[0].propSet[0].val as HostBIOSInfo;
+            sysinfo.bios = biosInfo.vendor + " " + biosInfo.biosVersion;
+
+            var cpuPkgs = GetPropertyContent(service, serviceContent, "HostSystem", "hardware.cpuPkg", reference)[0].propSet[0].val as HostCpuPackage[];
+            var cpuDict = new SortedDictionary<string, int>();
+            foreach (var cpuPkg in cpuPkgs) {
+                string[] candidateArr = cpuPkg.description.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                string candidate = string.Join(" ", candidateArr);
+                if (cpuDict.ContainsKey(candidate)) ++cpuDict[candidate]; else cpuDict.Add(candidate, 1);
+            }
+            sysinfo.processors = ComponentDictToString(cpuDict);
+
+            var cpuInfo = GetPropertyContent(service, serviceContent, "HostSystem", "hardware.cpuInfo", reference)[0].propSet[0].val as HostCpuInfo;
+            sysinfo.numCpuCores = cpuInfo.numCpuCores;
+            sysinfo.numCpuThreads = cpuInfo.numCpuThreads;
+
+            long memorySize = (long)GetPropertyContent(service, serviceContent, "HostSystem", "hardware.memorySize", reference)[0].propSet[0].val;
+            sysinfo.memoryInGB = Convert.ToInt32(Math.Round(Convert.ToDouble(memorySize) / (1024 * 1024 * 1024), MidpointRounding.AwayFromZero));
+
+            //----
+
+            //First ask the childentity from the rootfolder (datacenter)
+            ObjectContent[] oCont = GetPropertyContent(service, serviceContent, "Folder", "childEntity", serviceContent.rootFolder);
+
+            ManagedObjectReference datacenter = (oCont[0].propSet[0].val as ManagedObjectReference[])[0];
+
+            //Then ask the datastore from the datacenter
+            var datastoreRefs = GetPropertyContent(service, serviceContent, "Datacenter", "datastore", datacenter)[0].propSet[0].val as ManagedObjectReference[];
+
+            var hostMultipathInfo = GetPropertyContent(service, serviceContent, "HostSystem", "config.storageDevice.multipathInfo", reference)[0].propSet[0].val as HostMultipathInfo;
+            var scsiLuns = GetPropertyContent(service, serviceContent, "HostSystem", "config.storageDevice.scsiLun", reference)[0].propSet[0].val as ScsiLun[];
+
+            string[] dataStoreArr = new string[datastoreRefs.Length];
+            for (int i = 0; i != datastoreRefs.Length; i++) {
+                var candidate = datastoreRefs[i];
+                var dsInfo = GetPropertyContent(service, serviceContent, "Datastore", "info", candidate)[0].propSet[0].val as VmfsDatastoreInfo;
+                string diskName = dsInfo.vmfs.extent[0].diskName;
+
+                foreach (ScsiLun lun in scsiLuns)
+                    if (lun.canonicalName == diskName) {
+                        diskName = lun.displayName;
+                        break;
+                    }
+
+                dataStoreArr[i] = dsInfo.name + " disk " + diskName;
+            }
+            sysinfo.dataStores = string.Join("\t", dataStoreArr);
+
+            //Then ask the vm folder from the datacenter
+            var vmFolder = GetPropertyContent(service, serviceContent, "Datacenter", "vmFolder", datacenter)[0].propSet[0].val as ManagedObjectReference;
+            //finally get the list of the managed object from the vms.
+            var vmRefs = GetPropertyContent(service, serviceContent, "Folder", "childEntity", vmFolder)[0].propSet[0].val as ManagedObjectReference[];
+
+            var vDiskPathsHs = new HashSet<string>();
+            foreach (var vmRef in vmRefs) {
+                foreach (var dev in (GetPropertyContent(service, serviceContent, "VirtualMachine", "config.hardware", vmRef)[0].propSet[0].val as VirtualHardware).device) {
+                    if (dev is VirtualDisk) {
+                        if (dev.backing is VirtualDiskFlatVer2BackingInfo)
+                            vDiskPathsHs.Add((dev.backing as VirtualDiskFlatVer2BackingInfo).fileName);
+                        else if (dev.backing is VirtualDiskFlatVer1BackingInfo)
+                            vDiskPathsHs.Add((dev.backing as VirtualDiskFlatVer1BackingInfo).fileName);
+                    }
+                }
+            }
+
+            sysinfo.vDiskPaths = string.Join("\t", vDiskPathsHs);
+
+            //---
+
+            var physicalNics = GetPropertyContent(service, serviceContent, "HostSystem", "config.network.pnic", reference)[0].propSet[0].val as PhysicalNic[];
+            string[] pNicsArr = new string[physicalNics.Length];
+            for (int i = 0; i != physicalNics.Length; i++) {
+                var candidate = physicalNics[i];
+                pNicsArr[i] = candidate.device + " " + candidate.driver + " driver (" + (candidate.linkSpeed == null ? "not connected)" : "connected)");
+            }
+            sysinfo.nics = string.Join("\t", pNicsArr);
+
+            return sysinfo;
+        }
+        private static VimPortType GetVimService(string url, string username = null, string password = null, X509Certificate2 signingCertificate = null, XmlElement rawToken = null) {
+            var binding = SamlTokenHelper.GetWcfBinding();
+            var address = new EndpointAddress(url);
+
+            var factory = new ChannelFactory<VimPortType>(binding, address);
+
+            // Attach the behaviour that handles the WS-Trust 1.4 protocol for VMware Vim Service
+            factory.Endpoint.Behaviors.Add(new WsTrustBehavior(rawToken));
+
+            SamlTokenHelper.SetCredentials(username, password, signingCertificate, factory.Credentials);
+
+            var service = factory.CreateChannel();
+            return service;
+        }
+        private static ObjectContent[] GetPropertyContent(VimPortType service, ServiceContent serviceContent, string propertyType, string path, ManagedObjectReference reference) {
+            var propertySpecs = new PropertySpec[] { new PropertySpec() { type = propertyType, pathSet = new string[] { path } } };
+            var objectSpecs = new ObjectSpec[] { new ObjectSpec() { obj = reference } };
+            var propertyFilterSpecs = new PropertyFilterSpec[] { new PropertyFilterSpec() { propSet = propertySpecs, objectSet = objectSpecs } };
+
+            return service.RetrieveProperties(new RetrievePropertiesRequest(serviceContent.propertyCollector, propertyFilterSpecs)).returnval;
+        }
+
+        /// <summary>
+        /// Combines a component dictionary (key = name, value = number of) to a flat string.
+        /// </summary>
+        /// <param name="componentDict">The component dictionary.</param>
+        /// <returns
+        /// </returns>
+        private static string ComponentDictToString(SortedDictionary<string, int> componentDict) {
+            string[] arr = new string[componentDict.Count];
+            int i = 0;
+            foreach (var kvp in componentDict) {
+                string key = kvp.Key;
+                if (kvp.Value > 1) key += " x" + kvp.Value;
+
+                arr[i++] = key;
+            }
+            return string.Join("\t", arr);
+        }
+    }
+}

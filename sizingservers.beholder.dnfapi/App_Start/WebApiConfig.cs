@@ -13,9 +13,9 @@ namespace sizingservers.beholder.dnfapi {
         public static void Register(HttpConfiguration config) {
             // Web API configuration and services
 #if DEBUG
-            SystemInformationsController.Authorization = false;
+            AuthorizationHelper.Authorization = false;
 #else
-            SystemInformationsController.Authorization = true;
+            AuthorizationHelper.Authorization = AppSettings.GetValue<bool>("Authorization");
 #endif
 
             // Web API routes

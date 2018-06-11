@@ -57,6 +57,9 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="STSService">
+      <HintPath>..\Prerequisites\VMware-vSphere-SDK-6.7\STSService.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.SQLite, Version=1.0.108.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.108.0\lib\net45\System.Data.SQLite.dll</HintPath>
     </Reference>
@@ -70,6 +73,7 @@
     <Reference Include="System.Net.Http.Formatting, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.6\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -91,29 +95,45 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Vim25Service">
+      <HintPath>..\Prerequisites\VMware-vSphere-SDK-6.7\Vim25Service.dll</HintPath>
+    </Reference>
+    <Reference Include="VMware.Binding.WsTrust">
+      <HintPath>..\Prerequisites\VMware-vSphere-SDK-6.7\VMware.Binding.WsTrust.dll</HintPath>
+    </Reference>
+    <Reference Include="VMware.Security.CredentialStore">
+      <HintPath>..\Prerequisites\VMware-vSphere-SDK-6.7\VMware.Security.CredentialStore.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\AppSettings.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AuthorizationHelper.cs" />
     <Compile Include="Controllers\SystemInformationsController.cs" />
+    <Compile Include="Controllers\VMwareHostsController.cs" />
+    <Compile Include="DA\VmWareHostSystemInformation.cs" />
+    <Compile Include="DA\VMwareHostSystemInformationRetriever.cs" />
+    <Compile Include="DA\VMwareHostConnectionInfosDA.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\APIKey.cs" />
     <Compile Include="DA\APIKeyDA.cs" />
-    <Compile Include="DA\DataAccess.cs" />
+    <Compile Include="DA\SQLiteDataAccess.cs" />
     <Compile Include="Models\SystemInformation.cs" />
     <Compile Include="DA\SystemInformationDA.cs" />
-    <Compile Include="Models\VMwareConnectionInfos.cs" />
+    <Compile Include="Models\VMwareHostConnectionInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\beholder.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="App_Data\appsettings.json" />
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

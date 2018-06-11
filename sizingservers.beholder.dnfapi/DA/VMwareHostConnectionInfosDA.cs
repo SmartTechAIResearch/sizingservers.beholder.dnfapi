@@ -21,7 +21,7 @@ namespace sizingservers.beholder.dnfapi.DA {
             }
 
             if (Get(row.ipOrHostname) == null) {
-                DataAccess.ExecuteSQL("Insert into VMwareHostConnectionInfos(" + string.Join(",", propNames) + ") values(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
+                SQLiteDataAccess.ExecuteSQL("Insert into VMwareHostConnectionInfos(" + string.Join(",", propNames) + ") values(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
             }
             else {
                 var set = new List<string>();
@@ -32,7 +32,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                 string paramName = "@param" + (++paramI);
                 parameters.Add(new SQLiteParameter(paramName, row.ipOrHostname));
 
-                DataAccess.ExecuteSQL("Update VMwareHostConnectionInfos set " + string.Join(",", set) + " where ipOrHostname=" + paramName, CommandType.Text, null, parameters.ToArray());
+                SQLiteDataAccess.ExecuteSQL("Update VMwareHostConnectionInfos set " + string.Join(",", set) + " where ipOrHostname=" + paramName, CommandType.Text, null, parameters.ToArray());
             }
         }
 
@@ -54,13 +54,13 @@ namespace sizingservers.beholder.dnfapi.DA {
                 parameters.Add(new SQLiteParameter(paramName, ipOrHostname));
             }
 
-            DataAccess.ExecuteSQL("Delete from VMwareHostConnectionInfos where ipOrHostname in(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
+            SQLiteDataAccess.ExecuteSQL("Delete from VMwareHostConnectionInfos where ipOrHostname in(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
         }
         public static void Clear() {
-            DataAccess.ExecuteSQL("Delete from VMwareHostConnectionInfos");
+            SQLiteDataAccess.ExecuteSQL("Delete from VMwareHostConnectionInfos");
         }
         public static IEnumerable<VMwareHostConnectionInfo> GetAll() {
-            var dt = DataAccess.GetDataTable("Select * from VMwareHostConnectionInfos");
+            var dt = SQLiteDataAccess.GetDataTable("Select * from VMwareHostConnectionInfos");
 
             var all = new VMwareHostConnectionInfo[dt.Rows.Count];
             for (int i = 0; i != all.Length; i++)
@@ -68,7 +68,7 @@ namespace sizingservers.beholder.dnfapi.DA {
         }
 
         public static VMwareHostConnectionInfo Get(string ipOrHostname) {
-            var dt = DataAccess.GetDataTable("Select * from VMwareHostConnectionInfos where ipOrHostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", ipOrHostname));
+            var dt = SQLiteDataAccess.GetDataTable("Select * from VMwareHostConnectionInfos where ipOrHostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", ipOrHostname));
             if (dt.Rows.Count == 0) return null;
 
             return Parse(dt.Rows[0]);
