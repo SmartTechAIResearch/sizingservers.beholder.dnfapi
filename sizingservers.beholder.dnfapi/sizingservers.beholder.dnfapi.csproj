@@ -115,7 +115,7 @@
     <Compile Include="Controllers\AuthorizationHelper.cs" />
     <Compile Include="Controllers\SystemInformationsController.cs" />
     <Compile Include="Controllers\VMwareHostsController.cs" />
-    <Compile Include="DA\VmWareHostSystemInformation.cs" />
+    <Compile Include="DA\VMwareHostSystemInformation.cs" />
     <Compile Include="DA\VMwareHostSystemInformationRetriever.cs" />
     <Compile Include="DA\VMwareHostConnectionInfosDA.cs" />
     <Compile Include="Global.asax.cs">
@@ -135,6 +135,7 @@
     </Content>
     <Content Include="App_Data\appsettings.json" />
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -29,11 +29,11 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <param name="apiKey"></param>
         /// <returns></returns>
         [HttpGet]
-        public DA.VmWareHostSystemInformation[] ListSystemInformation(string apiKey = null) {
+        public DA.VMwareHostSystemInformation[] ListSystemInformation(string apiKey = null) {
             if (!AuthorizationHelper.Authorize(apiKey))
                 return null;
 
-            var sysinfos = new ConcurrentBag<DA.VmWareHostSystemInformation>();
+            var sysinfos = new ConcurrentBag<DA.VMwareHostSystemInformation>();
             Parallel.ForEach(DA.VMwareHostConnectionInfosDA.GetAll(), (hostinfo) => {
                 sysinfos.Add(DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo));
             });
@@ -56,7 +56,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
         }
         /// <summary>
-        /// Removes the connection info having the given hostname, if any.
+        /// Removes the connection info having the given ip or hostname, if any.
         /// </summary>
         /// <param name="apiKey"></param>
         /// <param name="ipOrHostname"></param>

@@ -26,10 +26,12 @@ namespace sizingservers.beholder.dnfapi.DA {
             //Ignore invalid SSL certs.
             ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback((sender, certificate, chain, policyErrors) => { return true; });
         }
-        public static VmWareHostSystemInformation Retrieve(VMwareHostConnectionInfo hostConnectionInfo) {
-            var sysinfo = new VmWareHostSystemInformation();
+        public static VMwareHostSystemInformation Retrieve(VMwareHostConnectionInfo hostConnectionInfo) {
+            var sysinfo = new VMwareHostSystemInformation();
 
             sysinfo.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
+            sysinfo.ipOrHostname = hostConnectionInfo.ipOrHostname;
+            sysinfo.guestHostnames = hostConnectionInfo.guestHostnames;
 
             VimPortType service = null;
             ServiceContent serviceContent = null;
@@ -58,6 +60,8 @@ namespace sizingservers.beholder.dnfapi.DA {
 
             var systemInfo = GetPropertyContent(service, serviceContent, "HostSystem", "hardware.systemInfo", reference)[0].propSet[0].val as HostSystemInfo;
             sysinfo.system = systemInfo.vendor + " " + systemInfo.model;
+
+            sysinfo.os = GetPropertyContent(service, serviceContent, "HostSystem", "summary.config.product.fullName", reference)[0].propSet[0].val.ToString();
 
             var biosInfo = GetPropertyContent(service, serviceContent, "HostSystem", "hardware.biosInfo", reference)[0].propSet[0].val as HostBIOSInfo;
             sysinfo.bios = biosInfo.vendor + " " + biosInfo.biosVersion;
@@ -91,7 +95,7 @@ namespace sizingservers.beholder.dnfapi.DA {
             var hostMultipathInfo = GetPropertyContent(service, serviceContent, "HostSystem", "config.storageDevice.multipathInfo", reference)[0].propSet[0].val as HostMultipathInfo;
             var scsiLuns = GetPropertyContent(service, serviceContent, "HostSystem", "config.storageDevice.scsiLun", reference)[0].propSet[0].val as ScsiLun[];
 
-            string[] dataStoreArr = new string[datastoreRefs.Length];
+            string[] datastoreArr = new string[datastoreRefs.Length];
             for (int i = 0; i != datastoreRefs.Length; i++) {
                 var candidate = datastoreRefs[i];
                 var dsInfo = GetPropertyContent(service, serviceContent, "Datastore", "info", candidate)[0].propSet[0].val as VmfsDatastoreInfo;
@@ -103,9 +107,9 @@ namespace sizingservers.beholder.dnfapi.DA {
                         break;
                     }
 
-                dataStoreArr[i] = dsInfo.name + " disk " + diskName;
+                datastoreArr[i] = dsInfo.name + " disk " + diskName;
             }
-            sysinfo.dataStores = string.Join("\t", dataStoreArr);
+            sysinfo.datastores = string.Join("\t", datastoreArr);
 
             //Then ask the vm folder from the datacenter
             var vmFolder = GetPropertyContent(service, serviceContent, "Datacenter", "vmFolder", datacenter)[0].propSet[0].val as ManagedObjectReference;

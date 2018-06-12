@@ -77,7 +77,8 @@ namespace sizingservers.beholder.dnfapi.DA {
         private static VMwareHostConnectionInfo Parse(DataRow row) {
             var vmwinfo = new VMwareHostConnectionInfo();
             foreach (PropertyInfo propInfo in vmwinfo.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
-                propInfo.SetValue(vmwinfo, row[propInfo.Name]);
+                var val = row[propInfo.Name];
+                propInfo.SetValue(vmwinfo, (val is System.DBNull) ? "" : val);
             }
 
             return vmwinfo;

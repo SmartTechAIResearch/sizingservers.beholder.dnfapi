@@ -8,10 +8,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace sizingservers.beholder.dnfapi.Models {
     public class VMwareHostConnectionInfo {
+        /// <summary>
+        /// </value>
         [Key]
         public string ipOrHostname { get; set; }
         /// <summary>
-        /// For when the current machine is a ESXi (>= 6.5) host. Assign quest ips to this range so a more usable UI can be build.
+        /// For when the current machine is a ESXi (>= 6.5) host. Assign quests to this range so a more usable UI can be build.
         /// </summary>
         public string guestHostnames { get; set; }
         /// <summary>

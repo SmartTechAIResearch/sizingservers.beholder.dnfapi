@@ -83,7 +83,8 @@ namespace sizingservers.beholder.dnfapi.DA {
         private static SystemInformation Parse(DataRow row) {
             var sysinfo = new SystemInformation();
             foreach (PropertyInfo propInfo in sysinfo.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
-                propInfo.SetValue(sysinfo, row[propInfo.Name]);
+                var val = row[propInfo.Name];
+                if (!(val is System.DBNull)) propInfo.SetValue(sysinfo, val);
             }
 
             return sysinfo;
