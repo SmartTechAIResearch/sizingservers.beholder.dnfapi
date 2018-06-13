@@ -65,12 +65,15 @@ namespace sizingservers.beholder.dnfapi.DA {
         public static void Clear() {
             SQLiteDataAccess.ExecuteSQL("Delete from SystemInformations");
         }
-        public static IEnumerable<SystemInformation> GetAll() {
+        public static SystemInformation[] GetAll() {
             var dt = SQLiteDataAccess.GetDataTable("Select * from SystemInformations");
+            if (dt == null) return new SystemInformation[0];
 
             var all = new SystemInformation[dt.Rows.Count];
             for (int i = 0; i != all.Length; i++)
-                yield return Parse(dt.Rows[i]);
+                all[i] = Parse(dt.Rows[i]);
+
+            return all;
         }
 
         public static SystemInformation Get(string hostname) {

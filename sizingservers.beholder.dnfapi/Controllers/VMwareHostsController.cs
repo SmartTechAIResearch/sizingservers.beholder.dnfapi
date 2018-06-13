@@ -4,6 +4,7 @@
  * 
  */
 
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,7 +36,12 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             var sysinfos = new ConcurrentBag<DA.VMwareHostSystemInformation>();
             Parallel.ForEach(DA.VMwareHostConnectionInfosDA.GetAll(), (hostinfo) => {
-                sysinfos.Add(DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo));
+                try {
+                    sysinfos.Add(DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo));
+                }
+                catch (Exception ex) {
+                    //Ignore for now.
+                }
             });
 
             return sysinfos.ToArray();
