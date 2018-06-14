@@ -34,7 +34,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                 }
             }
             catch (Exception ex) {
-#warning log exceptions
+#warning log exceptions(like readonly db).
             }
         }
         public static DataTable GetDataTable(string commandText, CommandType commandType = CommandType.Text, SQLiteTransaction transaction = null, params SQLiteParameter[] parameters) {

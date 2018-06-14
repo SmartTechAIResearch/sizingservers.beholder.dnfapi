@@ -38,7 +38,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                 string paramName = "@param" + (++paramI);
                 parameters.Add(new SQLiteParameter(paramName, row.hostname));
 
-                SQLiteDataAccess.ExecuteSQL("Update SytemInformations set " + string.Join(",", set) + " where hostname=" + paramName, CommandType.Text, null, parameters.ToArray());
+                SQLiteDataAccess.ExecuteSQL("Update SystemInformations set " + string.Join(",", set) + " where hostname=" + paramName, CommandType.Text, null, parameters.ToArray());
             }
         }
 
