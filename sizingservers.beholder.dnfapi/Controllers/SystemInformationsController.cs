@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace sizingservers.beholder.dnfapi.Controllers {
@@ -22,7 +23,14 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!AuthorizationHelper.Authorize(apiKey))
                 return null;
 
-            return DA.SystemInformationDA.GetAll().ToArray();
+            var list = DA.SystemInformationDA.GetAll();
+
+            Parallel.For(0, list.Length, (i) => {
+                var sysinfo = list[i];
+                sysinfo.responsive = (new DA.AgentPinger()).Ping(sysinfo.hostname, sysinfo.pingReplierTcpPort);
+            });
+
+            return list;
         }
         /// <summary>
         /// To POST / store a new system information in the database or replace an existing one using the hostname.

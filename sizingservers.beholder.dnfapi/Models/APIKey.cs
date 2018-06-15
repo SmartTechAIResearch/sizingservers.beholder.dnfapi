@@ -8,7 +8,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace sizingservers.beholder.dnfapi.Models {
     /// <summary>
-    /// 
     /// </summary>
     public class APIKey {
         /// <summary>
@@ -16,7 +15,7 @@ namespace sizingservers.beholder.dnfapi.Models {
         /// </summary>
         public long timeStampInSecondsSinceEpochUtc { get; set; }
         /// <summary>
-        /// The e-mail adres of the user. A check should happen if this e-mail address exists.
+        /// The e-mail adres of the user. A check could happen if this e-mail address exists.
         /// </summary>
         [Key]
         public string emailAddress { get; set; }
@@ -24,5 +23,14 @@ namespace sizingservers.beholder.dnfapi.Models {
         /// No restrictions. Just a string. Should maybe be a SHA512 hash.
         /// </summary>
         public string key { get; set; }
+
+        /// <summary>
+        /// </summary>
+        /// <returns>
+        /// The key.
+        /// </returns>
+        public override string ToString() {
+            return key;
+        }
     }
 }

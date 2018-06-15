@@ -19,7 +19,7 @@ namespace sizingservers.beholder.dnfapi {
                 jo = JObject.Parse(sr.ReadToEnd());
             }
 
-            return (T)Convert.ChangeType(jo.GetValue(key).ToObject(typeof(T)), typeof(T));
+            return (T)jo.GetValue(key).ToObject(typeof(T));
         }
     }
 }

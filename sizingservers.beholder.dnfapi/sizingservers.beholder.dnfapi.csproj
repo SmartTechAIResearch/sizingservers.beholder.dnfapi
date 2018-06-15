@@ -57,6 +57,12 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="SizingServers.Log">
+      <HintPath>..\Prerequisites\SizingServers.Log\SizingServers.Log.dll</HintPath>
+    </Reference>
+    <Reference Include="SizingServers.Util">
+      <HintPath>..\Prerequisites\SizingServers.Log\SizingServers.Util.dll</HintPath>
+    </Reference>
     <Reference Include="STSService">
       <HintPath>..\Prerequisites\VMware-vSphere-SDK-6.7\STSService.dll</HintPath>
     </Reference>
@@ -115,7 +121,8 @@
     <Compile Include="Controllers\AuthorizationHelper.cs" />
     <Compile Include="Controllers\SystemInformationsController.cs" />
     <Compile Include="Controllers\VMwareHostsController.cs" />
-    <Compile Include="DA\VMwareHostSystemInformation.cs" />
+    <Compile Include="DA\AgentPinger.cs" />
+    <Compile Include="Models\VMwareHostSystemInformation.cs" />
     <Compile Include="DA\VMwareHostSystemInformationRetriever.cs" />
     <Compile Include="DA\VMwareHostConnectionInfosDA.cs" />
     <Compile Include="Global.asax.cs">
@@ -136,7 +143,6 @@
     <Content Include="App_Data\appsettings.json" />
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
-    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

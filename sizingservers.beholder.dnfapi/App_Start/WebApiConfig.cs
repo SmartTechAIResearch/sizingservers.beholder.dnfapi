@@ -26,7 +26,7 @@ namespace sizingservers.beholder.dnfapi {
                 routeTemplate: "{controller}/{action}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-
+            //Format data as json instead of xml.
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
         }
     }

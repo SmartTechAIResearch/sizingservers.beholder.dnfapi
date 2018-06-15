@@ -17,9 +17,10 @@ namespace sizingservers.beholder.dnfapi {
             var context = HttpContext.Current;
             var response = context.Response;
 
-            // enable CORS
+            // Enable CORS
             response.AddHeader("Access-Control-Allow-Origin", "*");
 
+            // Enable other methods besides GET
             if (context.Request.HttpMethod == "OPTIONS") {
                 response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
                 response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept");

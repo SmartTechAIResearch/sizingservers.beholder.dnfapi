@@ -30,17 +30,19 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <param name="apiKey"></param>
         /// <returns></returns>
         [HttpGet]
-        public DA.VMwareHostSystemInformation[] ListSystemInformation(string apiKey = null) {
+        public Models.VMwareHostSystemInformation[] ListSystemInformation(string apiKey = null) {
             if (!AuthorizationHelper.Authorize(apiKey))
                 return null;
 
-            var sysinfos = new ConcurrentBag<DA.VMwareHostSystemInformation>();
+            var sysinfos = new ConcurrentBag<Models.VMwareHostSystemInformation>();
             Parallel.ForEach(DA.VMwareHostConnectionInfosDA.GetAll(), (hostinfo) => {
                 try {
-                    sysinfos.Add(DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo));
+                    sysinfos.Add((new DA.VMwareHostSystemInformationRetriever()).Retrieve(hostinfo));
                 }
                 catch (Exception ex) {
                     //Ignore for now.
+
+                    //Retrieve from database!!!!
                 }
             });
 

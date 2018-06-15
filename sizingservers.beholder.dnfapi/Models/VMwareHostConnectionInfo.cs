@@ -27,5 +27,12 @@ namespace sizingservers.beholder.dnfapi.Models {
         /// </summary>
         public string password { get; set; }
 
+        /// <summary>
+        /// No credentials in the tostring.
+        /// </summary>
+        public override string ToString() {
+            return "ipOfHostname: " + ipOrHostname + " guestHostnames: " + guestHostnames;
+        }
+
     }
 }
