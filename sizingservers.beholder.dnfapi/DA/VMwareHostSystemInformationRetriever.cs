@@ -20,18 +20,23 @@ namespace sizingservers.beholder.dnfapi.DA {
     /// <summary>
     /// For VMware vsphere SDK 6.7
     /// </summary>
-    public class VMwareHostSystemInformationRetriever {
+    public static class VMwareHostSystemInformationRetriever {
         private static DateTime _epochUtc = new DateTime(1970, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc);
 
         static VMwareHostSystemInformationRetriever() {
             //Ignore invalid SSL certs.
             ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback((sender, certificate, chain, policyErrors) => { return true; });
         }
-        public VMwareHostSystemInformation Retrieve(VMwareHostConnectionInfo hostConnectionInfo) {
+        public static VMwareHostSystemInformation Retrieve(VMwareHostConnectionInfo hostConnectionInfo) {
             try {
                 var sysinfo = new VMwareHostSystemInformation();
 
+#warning BMC ip
+#warning comments
+#warning some system so the database don't get hammered too much
+
                 sysinfo.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
+                sysinfo.responsive = true;
                 sysinfo.ipOrHostname = hostConnectionInfo.ipOrHostname;
                 sysinfo.guestHostnames = hostConnectionInfo.guestHostnames;
 
@@ -150,7 +155,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                 throw;
             }
         }
-        private VimPortType GetVimService(string url, string username = null, string password = null, X509Certificate2 signingCertificate = null, XmlElement rawToken = null) {
+        private static VimPortType GetVimService(string url, string username = null, string password = null, X509Certificate2 signingCertificate = null, XmlElement rawToken = null) {
             var binding = SamlTokenHelper.GetWcfBinding();
             var address = new EndpointAddress(url);
 
@@ -164,7 +169,7 @@ namespace sizingservers.beholder.dnfapi.DA {
             var service = factory.CreateChannel();
             return service;
         }
-        private ObjectContent[] GetPropertyContent(VimPortType service, ServiceContent serviceContent, string propertyType, string path, ManagedObjectReference reference) {
+        private static ObjectContent[] GetPropertyContent(VimPortType service, ServiceContent serviceContent, string propertyType, string path, ManagedObjectReference reference) {
             var propertySpecs = new PropertySpec[] { new PropertySpec() { type = propertyType, pathSet = new string[] { path } } };
             var objectSpecs = new ObjectSpec[] { new ObjectSpec() { obj = reference } };
             var propertyFilterSpecs = new PropertyFilterSpec[] { new PropertyFilterSpec() { propSet = propertySpecs, objectSet = objectSpecs } };
@@ -178,7 +183,7 @@ namespace sizingservers.beholder.dnfapi.DA {
         /// <param name="componentDict">The component dictionary.</param>
         /// <returns
         /// </returns>
-        private string ComponentDictToString(SortedDictionary<string, int> componentDict) {
+        private static string ComponentDictToString(SortedDictionary<string, int> componentDict) {
             string[] arr = new string[componentDict.Count];
             int i = 0;
             foreach (var kvp in componentDict) {

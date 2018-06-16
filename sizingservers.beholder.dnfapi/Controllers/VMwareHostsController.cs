@@ -36,14 +36,19 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             var sysinfos = new ConcurrentBag<Models.VMwareHostSystemInformation>();
             Parallel.ForEach(DA.VMwareHostConnectionInfosDA.GetAll(), (hostinfo) => {
+                Models.VMwareHostSystemInformation sysinfo = null;
                 try {
-                    sysinfos.Add((new DA.VMwareHostSystemInformationRetriever()).Retrieve(hostinfo));
+                    sysinfo = DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo);
                 }
-                catch (Exception ex) {
-                    //Ignore for now.
+                catch {
+                    sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.ipOrHostname);
+                    sysinfo.responsive = false;
+                }
 
-                    //Retrieve from database!!!!
-                }
+                DA.VMwareHostSystemInformationsDA.AddOrUpdate(sysinfo);
+
+                sysinfos.Add(sysinfo);
+
             });
 
             return sysinfos.ToArray();
@@ -59,6 +64,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
+            DA.VMwareHostSystemInformationsDA.Remove(vmwareHostConnectionInfo.ipOrHostname);
             DA.VMwareHostConnectionInfosDA.AddOrUpdate(vmwareHostConnectionInfo);
 
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
@@ -77,6 +83,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            DA.VMwareHostSystemInformationsDA.Remove(ipOrHostname);
             DA.VMwareHostConnectionInfosDA.Remove(ipOrHostname);
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
@@ -91,6 +98,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
+            DA.VMwareHostSystemInformationsDA.Clear();
             DA.VMwareHostConnectionInfosDA.Clear();
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.

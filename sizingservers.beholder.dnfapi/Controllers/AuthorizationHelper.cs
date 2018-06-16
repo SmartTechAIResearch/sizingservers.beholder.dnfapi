@@ -14,7 +14,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         public static bool Authorize(string apiKey) {
             if (!Authorization) return true;
 
-            return DA.APIKeyDA.HasKey(apiKey);
+            return DA.APIKeysDA.HasKey(apiKey);
         }
     }
 }

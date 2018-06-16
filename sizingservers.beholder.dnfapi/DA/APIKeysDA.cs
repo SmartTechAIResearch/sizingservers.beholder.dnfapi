@@ -10,7 +10,7 @@ using System.Data;
 using System.Data.SQLite;
 
 namespace sizingservers.beholder.dnfapi.DA {
-    public static class APIKeyDA {
+    public static class APIKeysDA {
         public static bool HasKey(string key) {
             try {
                 return SQLiteDataAccess.GetDataTable("Select key from APIKeys where key=@param1", CommandType.Text, null, new SQLiteParameter("@param1", key)).Rows.Count != 0;

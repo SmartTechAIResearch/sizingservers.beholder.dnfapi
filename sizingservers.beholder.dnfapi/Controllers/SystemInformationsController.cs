@@ -14,7 +14,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         private static DateTime _epochUtc = new DateTime(1970, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc);
 
         /// <summary>
-        /// GET all stored system informations.
+        /// GET all stored system informations. Requests an update on the system informations while doing it. The next time this function is called the updated info will be returned.
         /// </summary>
         /// <param name="apiKey"></param>
         /// <returns></returns>
@@ -23,11 +23,11 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!AuthorizationHelper.Authorize(apiKey))
                 return null;
 
-            var list = DA.SystemInformationDA.GetAll();
+            var list = DA.SystemInformationsDA.GetAll();
 
             Parallel.For(0, list.Length, (i) => {
-                var sysinfo = list[i];
-                sysinfo.responsive = (new DA.AgentRequestReport()).RequestReport(sysinfo.hostname, sysinfo.pingReplierTcpPort);
+                var systemInformation = list[i];
+                systemInformation.responsive = DA.AgentRequestReport.RequestReport(systemInformation.hostname, systemInformation.requestReportTcpPort) ? 1 : 0;
             });
 
             return list;
@@ -47,7 +47,8 @@ namespace sizingservers.beholder.dnfapi.Controllers {
                 return BadRequest(ModelState);
 
             systemInformation.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
-            DA.SystemInformationDA.AddOrUpdate(systemInformation);
+            systemInformation.responsive = 1;
+            DA.SystemInformationsDA.AddOrUpdate(systemInformation);
 
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
         }
@@ -65,7 +66,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            DA.SystemInformationDA.Remove(hostname);
+            DA.SystemInformationsDA.Remove(hostname);
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
         }
@@ -85,8 +86,8 @@ namespace sizingservers.beholder.dnfapi.Controllers {
                 return BadRequest("Given days should be an integer greater than 0.");
 
             long timeStampPastInSecondsSinceEpochUtc = (long)(DateTime.UtcNow.AddDays(days * -1) - _epochUtc).TotalSeconds;
-            var toRemove = DA.SystemInformationDA.GetAll().Where(x => x.timeStampInSecondsSinceEpochUtc <= timeStampPastInSecondsSinceEpochUtc);
-            DA.SystemInformationDA.Remove(toRemove.ToArray());
+            var toRemove = DA.SystemInformationsDA.GetAll().Where(x => x.timeStampInSecondsSinceEpochUtc <= timeStampPastInSecondsSinceEpochUtc);
+            DA.SystemInformationsDA.Remove(toRemove.ToArray());
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
         }
@@ -100,7 +101,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
-            DA.SystemInformationDA.Clear();
+            DA.SystemInformationsDA.Clear();
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
         }

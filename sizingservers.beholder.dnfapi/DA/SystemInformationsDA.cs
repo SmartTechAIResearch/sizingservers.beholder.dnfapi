@@ -13,7 +13,7 @@ using System.Data.SQLite;
 using System.Reflection;
 
 namespace sizingservers.beholder.dnfapi.DA {
-    public static class SystemInformationDA {
+    public static class SystemInformationsDA {
         public static void AddOrUpdate(SystemInformation row) {
             try {
                 var propNames = new List<string>();
@@ -131,7 +131,13 @@ namespace sizingservers.beholder.dnfapi.DA {
             var sysinfo = new SystemInformation();
             foreach (PropertyInfo propInfo in sysinfo.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                 var val = row[propInfo.Name];
-                if (!(val is System.DBNull)) propInfo.SetValue(sysinfo, val);
+
+                if (val is DBNull) {
+                    if (propInfo.PropertyType == typeof(string)) propInfo.SetValue(sysinfo, "");
+                }
+                else {
+                    propInfo.SetValue(sysinfo, Convert.ChangeType(val, propInfo.PropertyType));
+                }
             }
 
             return sysinfo;

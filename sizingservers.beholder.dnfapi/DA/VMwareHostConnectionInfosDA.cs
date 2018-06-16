@@ -137,7 +137,13 @@ namespace sizingservers.beholder.dnfapi.DA {
             var vmwinfo = new VMwareHostConnectionInfo();
             foreach (PropertyInfo propInfo in vmwinfo.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                 var val = row[propInfo.Name];
-                propInfo.SetValue(vmwinfo, (val is System.DBNull) ? "" : val);
+
+                if (val is DBNull) {
+                    if(propInfo.PropertyType == typeof(string)) propInfo.SetValue(vmwinfo, "");
+                }
+                else {
+                    propInfo.SetValue(vmwinfo, Convert.ChangeType(val, propInfo.PropertyType));
+                }
             }
 
             return vmwinfo;

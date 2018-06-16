@@ -121,7 +121,8 @@
     <Compile Include="Controllers\AuthorizationHelper.cs" />
     <Compile Include="Controllers\SystemInformationsController.cs" />
     <Compile Include="Controllers\VMwareHostsController.cs" />
-    <Compile Include="DA\AgentPinger.cs" />
+    <Compile Include="DA\AgentRequestReport.cs" />
+    <Compile Include="DA\VMwareHostSystemInformationsDA.cs" />
     <Compile Include="Models\VMwareHostSystemInformation.cs" />
     <Compile Include="DA\VMwareHostSystemInformationRetriever.cs" />
     <Compile Include="DA\VMwareHostConnectionInfosDA.cs" />
@@ -129,10 +130,10 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\APIKey.cs" />
-    <Compile Include="DA\APIKeyDA.cs" />
+    <Compile Include="DA\APIKeysDA.cs" />
     <Compile Include="DA\SQLiteDataAccess.cs" />
     <Compile Include="Models\SystemInformation.cs" />
-    <Compile Include="DA\SystemInformationDA.cs" />
+    <Compile Include="DA\SystemInformationsDA.cs" />
     <Compile Include="Models\VMwareHostConnectionInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

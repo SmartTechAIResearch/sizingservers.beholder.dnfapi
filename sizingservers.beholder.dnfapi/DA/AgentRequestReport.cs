@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Net;
 using System.Net.Sockets;
 
 namespace sizingservers.beholder.dnfapi.DA {
-    public class AgentRequestReport {
+    public static class AgentRequestReport {
 
         /// <summary>
         /// Pings the specified hostname. 5 minutes send and receive timeout.
@@ -10,27 +12,32 @@ namespace sizingservers.beholder.dnfapi.DA {
         /// <param name="hostname">The hostname.</param>
         /// <param name="port">The port.</param>
         /// <returns></returns>
-        public bool RequestReport(string hostname, int port) {
+        public static bool RequestReport(string hostname, int port) {
             bool success = false;
 
-            var tcpClient = new TcpClient();
-            tcpClient.Connect(hostname, port);
-       
-            if (tcpClient.Connected) {
-                tcpClient.SendTimeout = tcpClient.ReceiveTimeout = 360000;
-                var sw = new StreamWriter( tcpClient.GetStream());
-                var sr = new StreamReader(tcpClient.GetStream());
+            try {
+                var tcpClient = new TcpClient();
 
-                sw.Write("requestreport\r\n");
-                success = (sr.ReadLine().Trim().ToLowerInvariant() == "requestreport");
-            }
+                //Remove WORKGROUP or NETWORK from the hostname 
+                tcpClient.Connect(hostname.Split('.')[0], port);
 
-            if (tcpClient != null) {
-                try {
-                    if (tcpClient.Connected) tcpClient.Close();
+                if (tcpClient.Connected) {
+                    tcpClient.SendTimeout = tcpClient.ReceiveTimeout = 360000;
+                    var sw = new StreamWriter(tcpClient.GetStream());
+                    var sr = new StreamReader(tcpClient.GetStream());
+
+                    sw.Write("requestreport\r\n");
+                    sw.Flush();
+                    success = (sr.ReadLine().Trim().ToLowerInvariant() == "requestreport");
+                    try {
+                        tcpClient.Close();
+                    }
+                    catch { }
                 }
-                catch { }
                 tcpClient = null;
+            }
+            catch {
+                //Do not care. Report the agent as being unresponsive.
             }
 
             return success;
