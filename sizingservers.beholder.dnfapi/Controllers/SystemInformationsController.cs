@@ -27,7 +27,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             Parallel.For(0, list.Length, (i) => {
                 var sysinfo = list[i];
-                sysinfo.responsive = (new DA.AgentPinger()).Ping(sysinfo.hostname, sysinfo.pingReplierTcpPort);
+                sysinfo.responsive = (new DA.AgentRequestReport()).RequestReport(sysinfo.hostname, sysinfo.pingReplierTcpPort);
             });
 
             return list;
