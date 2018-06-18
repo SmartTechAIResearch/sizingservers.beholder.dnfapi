@@ -42,7 +42,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
                 }
                 catch {
                     sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.ipOrHostname);
-                    sysinfo.responsive = false;
+                    sysinfo.responsive = 0;
                 }
 
                 DA.VMwareHostSystemInformationsDA.AddOrUpdate(sysinfo);

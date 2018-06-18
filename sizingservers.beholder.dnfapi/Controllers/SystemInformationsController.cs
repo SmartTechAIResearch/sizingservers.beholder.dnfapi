@@ -48,6 +48,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             systemInformation.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
             systemInformation.responsive = 1;
+            systemInformation.comments = "";
             DA.SystemInformationsDA.AddOrUpdate(systemInformation);
 
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.

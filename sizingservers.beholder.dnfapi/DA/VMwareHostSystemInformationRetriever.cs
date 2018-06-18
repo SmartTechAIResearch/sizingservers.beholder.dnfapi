@@ -19,6 +19,8 @@ using SizingServers.Log;
 namespace sizingservers.beholder.dnfapi.DA {
     /// <summary>
     /// For VMware vsphere SDK 6.7
+    /// 
+    /// https://vdc-repo.vmware.com/vmwb-repository/dcr-public/b525fb12-61bb-4ede-b9e3-c4a1f8171510/99ba073a-60e9-4933-8690-149860ce8754/doc/index-mo_types.html
     /// </summary>
     public static class VMwareHostSystemInformationRetriever {
         private static DateTime _epochUtc = new DateTime(1970, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc);
@@ -31,14 +33,14 @@ namespace sizingservers.beholder.dnfapi.DA {
             try {
                 var sysinfo = new VMwareHostSystemInformation();
 
-#warning BMC ip
 #warning comments
 #warning some system so the database don't get hammered too much
 
                 sysinfo.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
-                sysinfo.responsive = true;
+                sysinfo.responsive = 1;
+                sysinfo.comments = "";
                 sysinfo.ipOrHostname = hostConnectionInfo.ipOrHostname;
-                sysinfo.guestHostnames = hostConnectionInfo.guestHostnames;
+                sysinfo.vmHostnames = hostConnectionInfo.vmHostnames;
 
                 VimPortType service = null;
                 ServiceContent serviceContent = null;
@@ -146,6 +148,9 @@ namespace sizingservers.beholder.dnfapi.DA {
                     pNicsArr[i] = candidate.device + " " + candidate.driver + " driver (" + (candidate.linkSpeed == null ? "not connected)" : "connected)");
                 }
                 sysinfo.nics = string.Join("\t", pNicsArr);
+
+                var ipmiPropset = GetPropertyContent(service, serviceContent, "HostSystem", "config.ipmi", reference)[0].propSet;
+                sysinfo.bmcIp = ipmiPropset == null ? "Unable to detect" : ipmiPropset[0].val.ToString();
 
                 return sysinfo;
             }
