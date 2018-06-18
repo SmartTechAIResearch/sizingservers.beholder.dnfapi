@@ -113,16 +113,16 @@ namespace sizingservers.beholder.dnfapi.DA {
             }
         }
 
-        public static VMwareHostSystemInformation Get(string hostname) {
+        public static VMwareHostSystemInformation Get(string ipOrHostname) {
             try {
-                var dt = SQLiteDataAccess.GetDataTable("Select * from VMwareHostSystemInformations where ipOrHostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", hostname));
+                var dt = SQLiteDataAccess.GetDataTable("Select * from VMwareHostSystemInformations where ipOrHostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", ipOrHostname));
                 if (dt.Rows.Count == 0) return null;
 
                 return Parse(dt.Rows[0]);
             }
             catch (Exception ex) {
                 //Let IIS handle the errors, but using own logging.
-                Loggers.Log(Level.Error, "Failed retrieving vhost system info", ex, new object[] { hostname });
+                Loggers.Log(Level.Error, "Failed retrieving vhost system info", ex, new object[] { ipOrHostname });
                 throw;
             }
         }

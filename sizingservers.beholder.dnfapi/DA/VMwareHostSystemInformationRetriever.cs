@@ -107,16 +107,29 @@ namespace sizingservers.beholder.dnfapi.DA {
                 string[] datastoreArr = new string[datastoreRefs.Length];
                 for (int i = 0; i != datastoreRefs.Length; i++) {
                     var candidate = datastoreRefs[i];
-                    var dsInfo = GetPropertyContent(service, serviceContent, "Datastore", "info", candidate)[0].propSet[0].val as VmfsDatastoreInfo;
-                    string diskName = dsInfo.vmfs.extent[0].diskName;
+                    var dsInfo = GetPropertyContent(service, serviceContent, "Datastore", "info", candidate)[0].propSet[0].val;
+                    string dataStoreName = null, diskName = null;
 
-                    foreach (ScsiLun lun in scsiLuns)
-                        if (lun.canonicalName == diskName) {
-                            diskName = lun.displayName;
-                            break;
-                        }
+                    if (dsInfo is VmfsDatastoreInfo) {
+                        dataStoreName = (dsInfo as VmfsDatastoreInfo).name;
+                        diskName = (dsInfo as VmfsDatastoreInfo).vmfs.extent[0].diskName;
+                    }
+                    else if (dsInfo is NasDatastoreInfo) {
+                        dataStoreName = (dsInfo as NasDatastoreInfo).name;
+                    }
+                    if (diskName == null) {
+                        diskName = "unknown";
+                    } else { 
+                        foreach (ScsiLun lun in scsiLuns)
+                            if (lun.canonicalName == diskName) {
+                                diskName = lun.displayName;
+                                break;
+                            }
+                    }
 
-                    datastoreArr[i] = dsInfo.name + " disk " + diskName;
+                    if (dataStoreName == null) dataStoreName = "Unknown";
+
+                    datastoreArr[i] = dataStoreName + " disk " + diskName;
                 }
                 sysinfo.datastores = string.Join("\t", datastoreArr);
 

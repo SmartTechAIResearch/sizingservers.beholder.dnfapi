@@ -42,14 +42,18 @@ namespace sizingservers.beholder.dnfapi.Controllers {
                 }
                 catch {
                     sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.ipOrHostname);
+#warning Handle this better?
+                    if (sysinfo == null) sysinfo = new Models.VMwareHostSystemInformation() { ipOrHostname = hostinfo.ipOrHostname, vmHostnames = hostinfo.vmHostnames };
                     sysinfo.responsive = 0;
                 }
-
-                DA.VMwareHostSystemInformationsDA.AddOrUpdate(sysinfo);
 
                 sysinfos.Add(sysinfo);
 
             });
+
+            foreach (var sysinfo in sysinfos)
+                DA.VMwareHostSystemInformationsDA.AddOrUpdate(sysinfo);
+
 
             return sysinfos.ToArray();
         }
