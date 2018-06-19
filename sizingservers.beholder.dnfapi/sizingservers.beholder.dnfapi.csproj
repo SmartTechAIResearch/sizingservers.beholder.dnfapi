@@ -118,11 +118,13 @@
   <ItemGroup>
     <Compile Include="App_Start\AppSettings.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\AuthorizationHelper.cs" />
+    <Compile Include="Helpers\AuthorizationHelper.cs" />
     <Compile Include="Controllers\SystemInformationsController.cs" />
     <Compile Include="Controllers\VMwareHostsController.cs" />
     <Compile Include="DA\AgentRequestReport.cs" />
     <Compile Include="DA\VMwareHostSystemInformationsDA.cs" />
+    <Compile Include="Helpers\CacheHelper.cs" />
+    <Compile Include="Helpers\Poller.cs" />
     <Compile Include="Models\VMwareHostSystemInformation.cs" />
     <Compile Include="DA\VMwareHostSystemInformationRetriever.cs" />
     <Compile Include="DA\VMwareHostConnectionInfosDA.cs" />

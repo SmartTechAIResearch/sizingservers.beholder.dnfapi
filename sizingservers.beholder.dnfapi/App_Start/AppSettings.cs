@@ -12,14 +12,12 @@ using System.Web;
 namespace sizingservers.beholder.dnfapi {
     public static class AppSettings {
         public static T GetValue<T>(string key) where T : struct, IConvertible {
-            string appDataFolder = HttpContext.Current.Server.MapPath("~/App_Data/");
-
             JObject jo = null;
-            using (var sr = new StreamReader(Path.Combine(appDataFolder, "appsettings.json"))) {
+            using (var sr = new StreamReader(Path.Combine(HttpRuntime.AppDomainAppPath, "App_Data", "appsettings.json"))) {
                 jo = JObject.Parse(sr.ReadToEnd());
             }
 
-            return (T)jo.GetValue(key).ToObject(typeof(T));
+            return (T)jo.GetValue(key, StringComparison.InvariantCultureIgnoreCase).ToObject(typeof(T));
         }
     }
 }

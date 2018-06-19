@@ -4,7 +4,6 @@
  * 
  */
 
-using sizingservers.beholder.dnfapi.Controllers;
 using System.Net.Http.Headers;
 using System.Web.Http;
 
@@ -13,14 +12,14 @@ namespace sizingservers.beholder.dnfapi {
         public static void Register(HttpConfiguration config) {
             // Web API configuration and services
 #if DEBUG
-            AuthorizationHelper.Authorization = false;
+            Helpers.AuthorizationHelper.Authorization = false;
 #else
-            AuthorizationHelper.Authorization = AppSettings.GetValue<bool>("Authorization");
+            Helpers.AuthorizationHelper.Authorization = AppSettings.GetValue<bool>("Authorization");
 #endif
 
             // Web API routes
             config.MapHttpAttributeRoutes();
-
+            
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "{controller}/{action}/{id}",
@@ -28,6 +27,9 @@ namespace sizingservers.beholder.dnfapi {
             );
             //Format data as json instead of xml.
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+
+            
+            Helpers.Poller.Start();
         }
     }
 }

@@ -4,10 +4,7 @@
  * 
  */
 
-using System;
-using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace sizingservers.beholder.dnfapi.Controllers {
@@ -19,7 +16,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpGet]
         public Models.VMwareHostConnectionInfo[] List(string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return null;
 
             return DA.VMwareHostConnectionInfosDA.GetAll().ToArray();
@@ -31,31 +28,10 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpGet]
         public Models.VMwareHostSystemInformation[] ListSystemInformation(string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
-                return null;
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
+                return null;           
 
-            var sysinfos = new ConcurrentBag<Models.VMwareHostSystemInformation>();
-            Parallel.ForEach(DA.VMwareHostConnectionInfosDA.GetAll(), (hostinfo) => {
-                Models.VMwareHostSystemInformation sysinfo = null;
-                try {
-                    sysinfo = DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo);
-                }
-                catch {
-                    sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.ipOrHostname);
-#warning Handle this better?
-                    if (sysinfo == null) sysinfo = new Models.VMwareHostSystemInformation() { ipOrHostname = hostinfo.ipOrHostname, vmHostnames = hostinfo.vmHostnames };
-                    sysinfo.responsive = 0;
-                }
-
-                sysinfos.Add(sysinfo);
-
-            });
-
-            foreach (var sysinfo in sysinfos)
-                DA.VMwareHostSystemInformationsDA.AddOrUpdate(sysinfo);
-
-
-            return sysinfos.ToArray();
+            return Helpers.Poller.PollVHSystemInformation();
         }
         /// <summary>
         /// Adds or update vmware host connection information.
@@ -65,7 +41,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpPost]
         public IHttpActionResult AddOrUpdate([FromBody]Models.VMwareHostConnectionInfo vmwareHostConnectionInfo, string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             DA.VMwareHostSystemInformationsDA.Remove(vmwareHostConnectionInfo.ipOrHostname);
@@ -81,7 +57,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpDelete]
         public IHttpActionResult Remove(string ipOrHostname, string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             if (!ModelState.IsValid)
@@ -99,7 +75,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpPut]
         public IHttpActionResult Clear(string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             DA.VMwareHostSystemInformationsDA.Clear();

@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace sizingservers.beholder.dnfapi.Controllers {
@@ -20,17 +19,10 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpGet]
         public Models.SystemInformation[] List(string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return null;
 
-            var list = DA.SystemInformationsDA.GetAll();
-
-            Parallel.For(0, list.Length, (i) => {
-                var systemInformation = list[i];
-                systemInformation.responsive = DA.AgentRequestReport.RequestReport(systemInformation.hostname, systemInformation.requestReportTcpPort) ? 1 : 0;
-            });
-
-            return list;
+            return Helpers.Poller.PollSystemInformation();
         }
         /// <summary>
         /// To POST / store a new system information in the database or replace an existing one using the hostname.
@@ -40,7 +32,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpPost]
         public IHttpActionResult Report([FromBody]Models.SystemInformation systemInformation, string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             if (!ModelState.IsValid)
@@ -48,7 +40,8 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             systemInformation.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
             systemInformation.responsive = 1;
-            systemInformation.comments = "";
+#warning merge comments
+            systemInformation.comments = ""; 
             DA.SystemInformationsDA.AddOrUpdate(systemInformation);
 
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
@@ -61,7 +54,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpDelete]
         public IHttpActionResult Remove(string hostname, string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             if (!ModelState.IsValid)
@@ -80,7 +73,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpPut]
         public IHttpActionResult CleanOlderThan(int days, string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             if (!ModelState.IsValid && days < 1)
@@ -99,7 +92,7 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// <returns></returns>
         [HttpPut]
         public IHttpActionResult Clear(string apiKey = null) {
-            if (!AuthorizationHelper.Authorize(apiKey))
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             DA.SystemInformationsDA.Clear();

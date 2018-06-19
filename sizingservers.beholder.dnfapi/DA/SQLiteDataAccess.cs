@@ -62,9 +62,7 @@ namespace sizingservers.beholder.dnfapi.DA {
             return command;
         }
         private static SQLiteConnection GetConnection() {
-            string appDataFolder = HttpContext.Current.Server.MapPath("~/App_Data/");
-
-            var con = new SQLiteConnection("Data Source=" + Path.Combine(appDataFolder, "beholder.db") + ";Version=3;");
+            var con = new SQLiteConnection("Data Source=" + Path.Combine(HttpRuntime.AppDomainAppPath, "App_Data", "beholder.db") + ";Version=3;");
             con.Open();
             return con;
 
