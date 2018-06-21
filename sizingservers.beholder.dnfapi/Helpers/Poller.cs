@@ -45,7 +45,7 @@ namespace sizingservers.beholder.dnfapi.Helpers {
         /// <param name="synchronizationContext">The synchronization context for syncing to the main thread for SQLite file access.</param>
         public static void Start() {
             Stop();
-            _pollTimer = new Timer(Poll, null, 10000, PollIntervalInSeconds * 1000);
+            _pollTimer = new Timer(Poll, null, 0, PollIntervalInSeconds * 1000);
         }
         /// <summary>
         /// Stops polling
