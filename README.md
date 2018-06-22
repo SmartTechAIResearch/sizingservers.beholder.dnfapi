@@ -1,5 +1,5 @@
 # sizingservers.beholder.dnfapi
-*2018-06-22 - 0.1: Feature complete Windows and Linux (Ubuntu) beholder agent.*
+*2018-06-22 - 0.1: First robust implementation.*
 
 *Compatible with sizingservers.beholder.agent 0.1 / sizingservers.beholder.frontend 0.1*
 
