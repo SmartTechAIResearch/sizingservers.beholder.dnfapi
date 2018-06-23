@@ -16,11 +16,6 @@ namespace sizingservers.beholder.dnfapi.DA {
     /// </summary>
     internal static class SQLiteDataAccess {
         /// <summary>
-        /// Fileaccess regulation
-        /// </summary>
-        private static readonly object _lock = new object();
-
-        /// <summary>
         /// Gets or sets the command timeout in seconds.
         /// </summary>
         /// <value>
@@ -32,23 +27,21 @@ namespace sizingservers.beholder.dnfapi.DA {
         static SQLiteDataAccess() { CommandTimeout = 30; }
 
         public static void ExecuteSQL(string commandText, CommandType commandType = CommandType.Text, SQLiteTransaction transaction = null, params SQLiteParameter[] parameters) {
-            lock (_lock)
-                using (var command = BuildCommand(commandText, commandType, transaction, parameters)) {
-                    command.ExecuteNonQuery();
-                }
+            using (var command = BuildCommand(commandText, commandType, transaction, parameters)) {
+                command.ExecuteNonQuery();
+            }
 
         }
         public static DataTable GetDataTable(string commandText, CommandType commandType = CommandType.Text, SQLiteTransaction transaction = null, params SQLiteParameter[] parameters) {
-            lock (_lock)
-                using (var command = BuildCommand(commandText, commandType, transaction, parameters)) {
-                    var dataAdapter = new SQLiteDataAdapter();
-                    dataAdapter.SelectCommand = command;
+            using (var command = BuildCommand(commandText, commandType, transaction, parameters)) {
+                var dataAdapter = new SQLiteDataAdapter();
+                dataAdapter.SelectCommand = command;
 
-                    var dataSet = new DataSet();
-                    dataAdapter.Fill(dataSet);
+                var dataSet = new DataSet();
+                dataAdapter.Fill(dataSet);
 
-                    return dataSet.Tables[0];
-                }
+                return dataSet.Tables[0];
+            }
         }
 
         private static SQLiteCommand BuildCommand(string commandText, CommandType commandType, SQLiteTransaction transaction, SQLiteParameter[] parameters) {
