@@ -14,7 +14,14 @@ namespace sizingservers.beholder.dnfapi {
         public static T GetValue<T>(string key) where T : struct, IConvertible {
             JObject jo = null;
             using (var sr = new StreamReader(Path.Combine(HttpRuntime.AppDomainAppPath, "App_Data", "appsettings.json"))) {
-                jo = JObject.Parse(sr.ReadToEnd());
+                string json = "";
+                while (sr.Peek() != -1) {
+                    string line = sr.ReadLine().Trim();
+                    if (!line.StartsWith("//") && !line.StartsWith("/*") && !line.StartsWith("*/"))
+                        json += line;
+                }
+
+                jo = JObject.Parse(json);
             }
 
             return (T)jo.GetValue(key, StringComparison.InvariantCultureIgnoreCase).ToObject(typeof(T));

@@ -91,18 +91,25 @@ Furthermore, check the XML documentation in the Build / comments in the code.
 
 For all tables in the database models and data accessors are available.
 
-## Build
-E.g. use and host the pre-build version or source in IIS. Build using Visual Studio.
+## Build and publish
+Publish to IIS using Visual Studio or host a pre-published version, see the 
+
+* PublishedDebug
+* PublishedRelease
+
+folder.
 
 To check if it works you can use a tool like Postman. Check the models in the Visual Studio solution to see how JSON payloads should be structured.
 
 ## Configure
 
 ### App_Data\\appsettings.json
+    // For authorization an API key can be sent in the GET data (?apikey=<insert here>). API keys are stored in the database.
+    // "Authorization": true is ignored for Debug builds (PublishedDebug folder).
     {
-      "Authorization" :  false
+      "Authorization": true,
       "CacheExpiresInSeconds": 10,
-      "PollIntervalInSeconds": 360  
+      "PollIntervalInSeconds": 360
     }
     
 Set Authorization to enable or disable the requirement of an API key for communication from agents to the API.
