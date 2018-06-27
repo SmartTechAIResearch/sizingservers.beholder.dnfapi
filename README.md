@@ -1,24 +1,39 @@
 # sizingservers.beholder.dnfapi
-*2018-06-22 - 0.1: First robust implementation.*
+*MIT Licensed   
+<a href="https://www.sizingservers.be" target="_blank">Sizing Servers Research Lab</a> at <a href="https://www.howest.be" target="_blank">University College of West-Flanders, Department GKG</a>  
+Dev: <a href="https://about.me/didjeeh" target="_blank">Dieter Vandroemme</a>*
 
-*Compatible with sizingservers.beholder.agent 0.1 / sizingservers.beholder.frontend 0.1*
-
-    2018 Sizing Servers Lab  
-    University College of West-Flanders, Department GKG
-    Dieter Vandroemme
-
-
+## Table of contents
+1. [Introduction](#introduction)
+2. [Version history](#version_history)
+3. [Languages, libraries, tools, technologies used and overview](#languages)
+4. [Overview of the API](#overview)
+5. [Build, publish and run](#build)
+6. [Configure](#configure)
+7. [Contribute](#contribute)
+ 
+<a name="introduction"></a>
+## Introduction
 ![flow](readme_img/flow.png)
 
 This project is part of a computer hardware inventorization solution, together with sizingservers.beholder.agent and sizingservers.beholder.frontend.
 
 Agents are installed on the computers you want to inventorize. These communicate with the REST API which stores hardware info. The front-end app visualizes that info.
 
+<a name="version_history"></a>
+## Version history
+**2018-06-22** - **version 0.1**: First robust implementation.  
+*Compatible with sizingservers.beholder.agent 0.1 / sizingservers.beholder.frontend 0.1*
+
+<a name="languages"></a>
 ## Languages, libraries, tools and technologies used
 The API is a **C# ASP.NET Web API 2 Application** (**.NET Framework 4.5**) contained within a **Visual Studio 2017** solution.  
 Furthermore, the system information agents send gets stored in a **SQLite3** database: beholder.db.
 The **VMware VSphere SDK 6.7** allows fetching VMware host system information.
 
+The Windows' **IIS** web server is used in the testing and production infrastructure at Sizing Servers Lab. 
+
+<a name="overview"></a>
 ## Overview of the API
 Communication happens over HTTP, using following structured url:
 
@@ -28,7 +43,7 @@ or
 
     http://< insert ip / fqdn here >:< port>/vmwarehosts/< call >?< params >
 
-The SystemInformationsController class handles most communication and following calls are available:
+The **SystemInformationsController** class handles most communication and following calls are available:
   
 * GET List, params apiKey  
   Returns all stored system informations.
@@ -58,7 +73,7 @@ The SystemInformationsController class handles most communication and following 
   Example: *PUT http://localhost:5000/systeminformations/clear?apiKey=..*.
 
 
-The VMwareHostsController has following available:
+The **VMwareHostsController** has following available:
 
 * GET List, params apiKey  
   Returns all stored host connection informations.
@@ -91,8 +106,9 @@ Furthermore, check the XML documentation in the Build / comments in the code.
 
 For all tables in the database models and data accessors are available.
 
-## Build and publish
-Publish to IIS using Visual Studio or host a pre-published version, see the 
+<a name="build"></a>
+## Build, publish and run
+Publish to **IIS** using Visual Studio or host a pre-published version, see the 
 
 * PublishedDebug
 * PublishedRelease
@@ -101,6 +117,7 @@ folder.
 
 To check if it works you can use a tool like Postman. Check the models in the Visual Studio solution to see how JSON payloads should be structured.
 
+<a name="configure"></a>
 ## Configure
 
 ### App_Data\\appsettings.json
@@ -136,3 +153,7 @@ SystemInformations is populated automatically by the use of the API.
 System information exists for VMs / physical machines /vhosts. The timestamp is set when SystemInformation is added to / updated in the database.
 
 vhosts need connection info.
+
+<a name="contribute"></a>
+## Contribute
+Feel free to post issues and/or fork and submit pull requests. 
