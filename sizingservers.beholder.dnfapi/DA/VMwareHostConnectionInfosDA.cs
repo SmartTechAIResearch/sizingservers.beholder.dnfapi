@@ -35,7 +35,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                     parameters.RemoveAt(fieldI);
                 }
 
-                if (Get(row.ipOrHostname) == null) {
+                if (Get(row.hostname) == null) {
                     SQLiteDataAccess.ExecuteSQL("Insert into VMwareHostConnectionInfos(" + string.Join(",", propNames) + ") values(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
                 }
                 else {
@@ -45,14 +45,25 @@ namespace sizingservers.beholder.dnfapi.DA {
 
 
                     string paramName = "@param" + (++paramI);
-                    parameters.Add(new SQLiteParameter(paramName, row.ipOrHostname));
+                    parameters.Add(new SQLiteParameter(paramName, row.hostname));
 
-                    SQLiteDataAccess.ExecuteSQL("Update VMwareHostConnectionInfos set " + string.Join(",", set) + " where ipOrHostname=" + paramName, CommandType.Text, null, parameters.ToArray());
+                    SQLiteDataAccess.ExecuteSQL("Update VMwareHostConnectionInfos set " + string.Join(",", set) + " where hostname=" + paramName, CommandType.Text, null, parameters.ToArray());
                 }
             }
             catch (Exception ex) {
                 //Let IIS handle the errors, but using own logging.
                 Loggers.Log(Level.Error, "Failed adding or updating vhost connection info", ex, new object[] { row });
+                throw;
+            }
+        }
+
+        public static void ChangePKValue(VMwareHostConnectionInfo row, string newHostname) {
+            try {
+                SQLiteDataAccess.ExecuteSQL("Update VMwareHostConnectionInfos set hostname=@param1 where hostname=@param2", CommandType.Text, null, new SQLiteParameter[] { new SQLiteParameter("@param1", newHostname), new SQLiteParameter("@param2", row.hostname) });
+            }
+            catch (Exception ex) {
+                //Let IIS handle the errors, but using own logging.
+                Loggers.Log(Level.Error, "Failed changing the pk value in vhost connection info", ex, new object[] { newHostname });
                 throw;
             }
         }
@@ -77,13 +88,13 @@ namespace sizingservers.beholder.dnfapi.DA {
                 var parameters = new List<SQLiteParameter>();
 
                 int paramI = 0;
-                foreach (string ipOrHostname in ipsOrHostnames) {
+                foreach (string hostname in ipsOrHostnames) {
                     string paramName = "@param" + (++paramI);
                     paramNames.Add(paramName);
-                    parameters.Add(new SQLiteParameter(paramName, ipOrHostname));
+                    parameters.Add(new SQLiteParameter(paramName, hostname));
                 }
 
-                SQLiteDataAccess.ExecuteSQL("Delete from VMwareHostConnectionInfos where ipOrHostname in(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
+                SQLiteDataAccess.ExecuteSQL("Delete from VMwareHostConnectionInfos where hostname in(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
             }
             catch (Exception ex) {
                 //Let IIS handle the errors, but using own logging.
@@ -119,9 +130,9 @@ namespace sizingservers.beholder.dnfapi.DA {
             }
         }
 
-        public static VMwareHostConnectionInfo Get(string ipOrHostname) {
+        public static VMwareHostConnectionInfo Get(string hostname) {
             try {
-                var dt = SQLiteDataAccess.GetDataTable("Select * from VMwareHostConnectionInfos where ipOrHostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", ipOrHostname));
+                var dt = SQLiteDataAccess.GetDataTable("Select * from VMwareHostConnectionInfos where hostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", hostname));
                 if (dt.Rows.Count == 0) return null;
 
                 return Parse(dt.Rows[0]);
@@ -139,7 +150,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                 var val = row[propInfo.Name];
 
                 if (val is DBNull) {
-                    if(propInfo.PropertyType == typeof(string)) propInfo.SetValue(vmwinfo, "");
+                    if (propInfo.PropertyType == typeof(string)) propInfo.SetValue(vmwinfo, "");
                 }
                 else {
                     propInfo.SetValue(vmwinfo, Convert.ChangeType(val, propInfo.PropertyType));

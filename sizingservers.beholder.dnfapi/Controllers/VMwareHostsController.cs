@@ -44,7 +44,6 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
-            DA.VMwareHostSystemInformationsDA.Remove(vmwareHostConnectionInfo.ipOrHostname);
             DA.VMwareHostConnectionInfosDA.AddOrUpdate(vmwareHostConnectionInfo);
 
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
@@ -53,18 +52,18 @@ namespace sizingservers.beholder.dnfapi.Controllers {
         /// Removes the connection info having the given ip or hostname, if any.
         /// </summary>
         /// <param name="apiKey"></param>
-        /// <param name="ipOrHostname"></param>
+        /// <param name="hostname"></param>
         /// <returns></returns>
         [HttpDelete]
-        public IHttpActionResult Remove(string ipOrHostname, string apiKey = null) {
+        public IHttpActionResult Remove(string hostname, string apiKey = null) {
             if (!Helpers.AuthorizationHelper.Authorize(apiKey))
                 return Unauthorized();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            DA.VMwareHostSystemInformationsDA.Remove(ipOrHostname);
-            DA.VMwareHostConnectionInfosDA.Remove(ipOrHostname);
+            DA.VMwareHostSystemInformationsDA.Remove(hostname);
+            DA.VMwareHostConnectionInfosDA.Remove(hostname);
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
         }

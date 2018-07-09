@@ -29,7 +29,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                     parameters.Add(new SQLiteParameter(paramName, propInfo.GetValue(row)));
                 }
 
-                if (Get(row.ipOrHostname) == null) {
+                if (Get(row.hostname) == null) {
                     SQLiteDataAccess.ExecuteSQL("Insert into VMwareHostSystemInformations(" + string.Join(",", propNames) + ") values(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
                 }
                 else {
@@ -39,9 +39,9 @@ namespace sizingservers.beholder.dnfapi.DA {
 
 
                     string paramName = "@param" + (++paramI);
-                    parameters.Add(new SQLiteParameter(paramName, row.ipOrHostname));
+                    parameters.Add(new SQLiteParameter(paramName, row.hostname));
 
-                    SQLiteDataAccess.ExecuteSQL("Update VMwareHostSystemInformations set " + string.Join(",", set) + " where ipOrHostname=" + paramName, CommandType.Text, null, parameters.ToArray());
+                    SQLiteDataAccess.ExecuteSQL("Update VMwareHostSystemInformations set " + string.Join(",", set) + " where hostname=" + paramName, CommandType.Text, null, parameters.ToArray());
                 }
             }
             catch (Exception ex) {
@@ -54,7 +54,7 @@ namespace sizingservers.beholder.dnfapi.DA {
         public static void Remove(params VMwareHostSystemInformation[] rows) {
             try {
                 var hostnames = new string[rows.Length];
-                for (int i = 0; i != rows.Length; i++) hostnames[i] = rows[i].ipOrHostname;
+                for (int i = 0; i != rows.Length; i++) hostnames[i] = rows[i].hostname;
 
                 Remove(hostnames);
             }
@@ -65,23 +65,23 @@ namespace sizingservers.beholder.dnfapi.DA {
             }
         }
 
-        public static void Remove(params string[] ipOrHostnames) {
+        public static void Remove(params string[] hostnames) {
             try {
                 var paramNames = new List<string>();
                 var parameters = new List<SQLiteParameter>();
 
                 int paramI = 0;
-                foreach (string hostname in ipOrHostnames) {
+                foreach (string hostname in hostnames) {
                     string paramName = "@param" + (++paramI);
                     paramNames.Add(paramName);
                     parameters.Add(new SQLiteParameter(paramName, hostname));
                 }
 
-                SQLiteDataAccess.ExecuteSQL("Delete from VMwareHostSystemInformations where ipOrHostname in(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
+                SQLiteDataAccess.ExecuteSQL("Delete from VMwareHostSystemInformations where hostname in(" + string.Join(",", paramNames) + ")", CommandType.Text, null, parameters.ToArray());
             }
             catch (Exception ex) {
                 //Let IIS handle the errors, but using own logging.
-                Loggers.Log(Level.Error, "Failed removing vhost system info", ex, new object[] { ipOrHostnames });
+                Loggers.Log(Level.Error, "Failed removing vhost system info", ex, new object[] { hostnames });
                 throw;
             }
         }
@@ -113,16 +113,16 @@ namespace sizingservers.beholder.dnfapi.DA {
             }
         }
 
-        public static VMwareHostSystemInformation Get(string ipOrHostname) {
+        public static VMwareHostSystemInformation Get(string hostname) {
             try {
-                var dt = SQLiteDataAccess.GetDataTable("Select * from VMwareHostSystemInformations where ipOrHostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", ipOrHostname));
+                var dt = SQLiteDataAccess.GetDataTable("Select * from VMwareHostSystemInformations where hostname=@param1", CommandType.Text, null, new SQLiteParameter("@param1", hostname));
                 if (dt.Rows.Count == 0) return null;
 
                 return Parse(dt.Rows[0]);
             }
             catch (Exception ex) {
                 //Let IIS handle the errors, but using own logging.
-                Loggers.Log(Level.Error, "Failed retrieving vhost system info", ex, new object[] { ipOrHostname });
+                Loggers.Log(Level.Error, "Failed retrieving vhost system info", ex, new object[] { hostname });
                 throw;
             }
         }

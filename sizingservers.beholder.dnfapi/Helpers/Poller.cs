@@ -104,9 +104,9 @@ namespace sizingservers.beholder.dnfapi.Helpers {
                         sysinfo = DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo);
                     }
                     catch {
-                        sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.ipOrHostname);
+                        sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.hostname);
 #warning Handle this better?
-                        if (sysinfo == null) sysinfo = new Models.VMwareHostSystemInformation() { ipOrHostname = hostinfo.ipOrHostname, vmHostnames = hostinfo.vmHostnames };
+                        if (sysinfo == null) sysinfo = new Models.VMwareHostSystemInformation() { hostname = hostinfo.hostname, vmHostnames = hostinfo.vmHostnames };
                         sysinfo.responsive = 0;
                     }
 

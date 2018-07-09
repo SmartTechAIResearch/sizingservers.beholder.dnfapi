@@ -18,7 +18,11 @@ namespace sizingservers.beholder.dnfapi.Models {
         /// <summary>
         /// </summary>
         [Key]
-        public string ipOrHostname { get; set; }
+        public string hostname { get; set; }
+        /// <summary>
+        /// Tab seperated, for dbs that cannot handle arrays
+        /// </summary>
+        public string ips { get; set; }
         /// <summary>
         /// For when the current machine is a ESXi (>= 6.5) host. Assign vms to this range so a more usable UI can be build.
         /// </summary>
@@ -81,7 +85,7 @@ namespace sizingservers.beholder.dnfapi.Models {
         /// A <see cref="System.String" /> that represents this instance.
         /// </returns>
         public override string ToString() {
-            return "ipOfHostname: " + ipOrHostname + " vmHostnames: " + vmHostnames;
+            return "ipOfHostname: " + hostname + " vmHostnames: " + vmHostnames;
         }
     }
 }

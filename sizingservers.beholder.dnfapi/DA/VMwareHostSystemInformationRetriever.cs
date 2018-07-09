@@ -34,19 +34,17 @@ namespace sizingservers.beholder.dnfapi.DA {
                 var sysinfo = new VMwareHostSystemInformation();
 
 #warning comments
-#warning some system so the database don't get hammered too much
 
                 sysinfo.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
                 sysinfo.responsive = 1;
                 sysinfo.comments = "";
-                sysinfo.ipOrHostname = hostConnectionInfo.ipOrHostname;
                 sysinfo.vmHostnames = hostConnectionInfo.vmHostnames;
 
                 VimPortType service = null;
                 ServiceContent serviceContent = null;
 
                 //Connect
-                string url = "https://" + hostConnectionInfo.ipOrHostname + "/sdk";
+                string url = "https://" + hostConnectionInfo.hostname + "/sdk";
                 ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
                 service = GetVimService(url, hostConnectionInfo.username, hostConnectionInfo.password);
@@ -62,10 +60,27 @@ namespace sizingservers.beholder.dnfapi.DA {
 
                 //Get the host ref by IP or by host name.
                 IPAddress address;
-                ManagedObjectReference reference = IPAddress.TryParse(hostConnectionInfo.ipOrHostname, out address) ?
-                    service.FindByIp(serviceContent.searchIndex, null, hostConnectionInfo.ipOrHostname, false) :
-                    service.FindByDnsName(serviceContent.searchIndex, null, Dns.GetHostEntry(hostConnectionInfo.ipOrHostname).HostName, false);
+                ManagedObjectReference reference = IPAddress.TryParse(hostConnectionInfo.hostname, out address) ?
+                    service.FindByIp(serviceContent.searchIndex, null, hostConnectionInfo.hostname, false) :
+                    service.FindByDnsName(serviceContent.searchIndex, null, Dns.GetHostEntry(hostConnectionInfo.hostname).HostName, false);
 
+
+                sysinfo.hostname = GetPropertyContent(service, serviceContent, "HostSystem", "summary.config.name", reference)[0].propSet[0].val.ToString();
+                if (string.IsNullOrEmpty(sysinfo.hostname)) sysinfo.hostname = hostConnectionInfo.hostname;
+
+                if (hostConnectionInfo.hostname != sysinfo.hostname) 
+                    VMwareHostConnectionInfosDA.ChangePKValue(hostConnectionInfo, sysinfo.hostname);               
+
+
+                var vnics = GetPropertyContent(service, serviceContent, "HostSystem", "config.network.vnic", reference)[0].propSet[0].val as HostVirtualNic[];
+                var ips = new List<string>();
+                foreach (var vnic in vnics) {
+                    if (!string.IsNullOrEmpty(vnic.spec.ip.ipAddress)) ips.Add(vnic.spec.ip.ipAddress);
+                    if (vnic.spec.ip.ipV6Config != null)
+                        foreach (var configIPV6 in vnic.spec.ip.ipV6Config.ipV6Address)
+                            if (!string.IsNullOrEmpty(configIPV6.ipAddress)) ips.Add(configIPV6.ipAddress);
+                }
+                sysinfo.ips = string.Join("\t", ips);
 
                 var systemInfo = GetPropertyContent(service, serviceContent, "HostSystem", "hardware.systemInfo", reference)[0].propSet[0].val as HostSystemInfo;
                 sysinfo.system = systemInfo.vendor + " " + systemInfo.model;
@@ -119,7 +134,8 @@ namespace sizingservers.beholder.dnfapi.DA {
                     }
                     if (diskName == null) {
                         diskName = "unknown";
-                    } else { 
+                    }
+                    else {
                         foreach (ScsiLun lun in scsiLuns)
                             if (lun.canonicalName == diskName) {
                                 diskName = lun.displayName;

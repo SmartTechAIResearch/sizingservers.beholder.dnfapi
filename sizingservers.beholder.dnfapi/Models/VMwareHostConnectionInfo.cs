@@ -11,7 +11,7 @@ namespace sizingservers.beholder.dnfapi.Models {
         /// <summary>
         /// </value>
         [Key]
-        public string ipOrHostname { get; set; }
+        public string hostname { get; set; }
         /// <summary>
         /// For when the current machine is a ESXi (>= 6.5) host. Assign quests to this range so a more usable UI can be build.
         /// </summary>
@@ -31,7 +31,7 @@ namespace sizingservers.beholder.dnfapi.Models {
         /// No credentials in the tostring.
         /// </summary>
         public override string ToString() {
-            return "ipOfHostname: " + ipOrHostname + " vmHostnames: " + vmHostnames;
+            return "ipOfHostname: " + hostname + " vmHostnames: " + vmHostnames;
         }
 
     }
