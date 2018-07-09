@@ -8,6 +8,7 @@ using SizingServers.Log;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace sizingservers.beholder.dnfapi.Helpers {
     /// <summary>
@@ -85,6 +86,8 @@ namespace sizingservers.beholder.dnfapi.Helpers {
                 if (responsiveChanged)
                     foreach (var row in list) DA.SystemInformationsDA.AddOrUpdate(row);
 
+                list = list.OrderBy(x => x.hostname).ToArray();
+
                 CacheHelper.Add("systemInformationList", list);
             }
 
@@ -117,8 +120,7 @@ namespace sizingservers.beholder.dnfapi.Helpers {
                 foreach (var sysinfo in sysinfos)
                     DA.VMwareHostSystemInformationsDA.AddOrUpdate(sysinfo);
 
-
-                list = sysinfos.ToArray();
+                list = sysinfos.ToArray().OrderBy(x => x.hostname).ToArray();
 
                 CacheHelper.Add("vhSystemInformationList", list);
             }
