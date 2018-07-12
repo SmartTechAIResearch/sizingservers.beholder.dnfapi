@@ -22,8 +22,17 @@ Agents are installed on the computers you want to inventorize. These communicate
 
 <a name="version_history"></a>
 ## Version history
-**2018-06-22** - **version 0.1**: First robust implementation.  
-*Compatible with sizingservers.beholder.agent 0.1 / sizingservers.beholder.frontend 0.1*
+**2018-07-12** - **version 0.2**: Added vhost host name and IP discovery.  
+*Compatible with sizingservers.beholder.agent 0.1 / sizingservers.beholder.frontend 0.2*
+
+    IMPORTANT - Added hostname and ip discovery to VHosts
+    
+    When upgrading from version 0.1, you must alter beholder.db for this to work:
+    * add a TEXT field ips to VMwareHostSystemInformations
+    * change ipOrHostname to hostname in VMwareHostSystemInformations and VMwareHostConnectionInfos 
+
+**Previous versions**:
+2018-06-22 - version 0.1: First robust implementation. Compatible with sizingservers.beholder.agent 0.1 / sizingservers.beholder.frontend 0.1
 
 <a name="languages"></a>
 ## Languages, libraries, tools and technologies used
