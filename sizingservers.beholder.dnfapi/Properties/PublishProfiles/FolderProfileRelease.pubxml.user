@@ -13,10 +13,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>06/25/2018 08:17:26</publishTime>
     </File>
     <File Include="App_Data/beholder.db">
-      <publishTime>07/09/2018 10:24:57</publishTime>
+      <publishTime>08/23/2018 14:25:14</publishTime>
     </File>
     <File Include="bin/App_Data/beholder.db">
-      <publishTime>07/09/2018 10:24:57</publishTime>
+      <publishTime>08/23/2018 14:25:14</publishTime>
     </File>
     <File Include="bin/EntityFramework.dll">
       <publishTime>06/22/2018 16:25:33</publishTime>
@@ -109,10 +109,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>06/22/2018 16:25:34</publishTime>
     </File>
     <File Include="bin/sizingservers.beholder.dnfapi.dll">
-      <publishTime>07/09/2018 10:52:33</publishTime>
+      <publishTime>08/23/2018 14:32:34</publishTime>
     </File>
     <File Include="bin/sizingservers.beholder.dnfapi.pdb">
-      <publishTime>07/09/2018 10:52:33</publishTime>
+      <publishTime>08/23/2018 14:32:34</publishTime>
     </File>
     <File Include="bin/SizingServers.Log.dll">
       <publishTime>06/22/2018 16:25:32</publishTime>

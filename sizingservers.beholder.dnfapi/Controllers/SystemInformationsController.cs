@@ -40,10 +40,33 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             systemInformation.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
             systemInformation.responsive = 1;
-#warning merge comments
-            systemInformation.comments = ""; 
+
+            try {
+                systemInformation.comments = DA.SystemInformationsDA.Get(systemInformation.hostname).comments;
+            }
+            catch { }
             DA.SystemInformationsDA.AddOrUpdate(systemInformation);
 
+            return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
+        }
+
+        [HttpPut]
+        public IHttpActionResult AddOrUpdateComments([FromBody]string comments, string hostname, string apiKey = null) {
+            if (!Helpers.AuthorizationHelper.Authorize(apiKey))
+                return Unauthorized();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (comments != null)
+                try {
+                    var systemInformation = DA.SystemInformationsDA.Get(hostname);
+                    systemInformation.comments = comments;
+                    DA.SystemInformationsDA.AddOrUpdate(systemInformation);
+                }
+                catch {
+#warning handle this
+                }
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
         }
         /// <summary>

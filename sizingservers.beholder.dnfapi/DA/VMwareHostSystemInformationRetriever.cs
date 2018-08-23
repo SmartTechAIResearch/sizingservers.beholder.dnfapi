@@ -33,8 +33,6 @@ namespace sizingservers.beholder.dnfapi.DA {
             try {
                 var sysinfo = new VMwareHostSystemInformation();
 
-#warning comments
-
                 sysinfo.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
                 sysinfo.responsive = 1;
                 sysinfo.comments = "";

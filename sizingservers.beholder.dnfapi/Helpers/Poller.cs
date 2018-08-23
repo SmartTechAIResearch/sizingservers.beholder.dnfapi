@@ -102,15 +102,18 @@ namespace sizingservers.beholder.dnfapi.Helpers {
             if (list == null) {
                 var sysinfos = new ConcurrentBag<Models.VMwareHostSystemInformation>();
                 Parallel.ForEach(DA.VMwareHostConnectionInfosDA.GetAll(), (hostinfo) => {
-                    Models.VMwareHostSystemInformation sysinfo = null;
+                    Models.VMwareHostSystemInformation sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.hostname);
+                    if (sysinfo == null) sysinfo = new Models.VMwareHostSystemInformation() { hostname = hostinfo.hostname, vmHostnames = hostinfo.vmHostnames };
+                    sysinfo.responsive = 0;
                     try {
-                        sysinfo = DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo);
+                        var newSysinfo = DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo);
+                        if (newSysinfo != null) {
+                            newSysinfo.comments = sysinfo.comments;
+                            sysinfo = newSysinfo;
+                        }
                     }
                     catch {
-                        sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.hostname);
-#warning Handle this better?
-                        if (sysinfo == null) sysinfo = new Models.VMwareHostSystemInformation() { hostname = hostinfo.hostname, vmHostnames = hostinfo.vmHostnames };
-                        sysinfo.responsive = 0;
+#warning Handle this
                     }
 
                     sysinfos.Add(sysinfo);

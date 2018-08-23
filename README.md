@@ -68,6 +68,9 @@ The **SystemInformationsController** class handles most communication and follow
   
   Example: *POST http://localhost:5000/systeminformations/report?apiKey=...*
   
+* PUT AddOrUpdateComments, params hostname apiKey  
+  To add user comments.
+  
 * DELETE Remove, params apiKey hostname  
   Removes the system information having the given hostname, if any.
   
@@ -91,7 +94,7 @@ The **VMwareHostsController** has following available:
   
   Example: *GET http://localhost:5000/vmwarehosts/list?apiKey=...*
   
-  * GET ListSystemInformation, params apiKey  
+* GET ListSystemInformation, params apiKey  
   Returns system info for all stored host connection informations.
     
   Example: *GET http://localhost:5000/vmwarehosts/listsysteminformation?apiKey=...*
@@ -102,6 +105,9 @@ The **VMwareHostsController** has following available:
   System information has a model you can find in the solution. It should be serialized as JSON in the body of the call.
   
   Example: *POST http://localhost:5000/vmwarehosts/addorupdate?apiKey=...*
+
+* PUT AddOrUpdateComments, params hostname apiKey  
+  To add user comments.
   
 * DELETE Remove, params apiKey hostname  
   Removes the connection info having the given hostname, if any.
