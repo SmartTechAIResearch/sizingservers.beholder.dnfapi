@@ -72,19 +72,12 @@ namespace sizingservers.beholder.dnfapi.Helpers {
             if (list == null) {
                 list = DA.SystemInformationsDA.GetAll();
 
-                bool responsiveChanged = false;
                 Parallel.For(0, list.Length, (i) => {
                     var systemInformation = list[i];
-                    int responsive = DA.AgentRequestReport.RequestReport(systemInformation.hostname, systemInformation.requestReportTcpPort) ? 1 : 0;
-
-                    if (systemInformation.responsive != responsive) {
-                        systemInformation.responsive = responsive;
-                        responsiveChanged = true;
-                    }
+                    systemInformation.responsive = DA.AgentRequestReport.RequestReport(systemInformation.hostname, systemInformation.requestReportTcpPort) ? 1 : 0;
                 });
 
-                if (responsiveChanged)
-                    foreach (var row in list) DA.SystemInformationsDA.AddOrUpdate(row);
+                foreach (var row in list) DA.SystemInformationsDA.AddOrUpdate(row, true);
 
                 list = list.OrderBy(x => x.hostname).ToArray();
 
@@ -102,26 +95,26 @@ namespace sizingservers.beholder.dnfapi.Helpers {
             if (list == null) {
                 var sysinfos = new ConcurrentBag<Models.VMwareHostSystemInformation>();
                 Parallel.ForEach(DA.VMwareHostConnectionInfosDA.GetAll(), (hostinfo) => {
-                    Models.VMwareHostSystemInformation sysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.hostname);
-                    if (sysinfo == null) sysinfo = new Models.VMwareHostSystemInformation() { hostname = hostinfo.hostname, vmHostnames = hostinfo.vmHostnames };
-                    sysinfo.responsive = 0;
-                    try {
-                        var newSysinfo = DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo);
-                        if (newSysinfo != null) {
-                            newSysinfo.comments = sysinfo.comments;
-                            sysinfo = newSysinfo;
-                        }
-                    }
-                    catch {
-#warning Handle this
+#warning handle exceptions
+
+                    Models.VMwareHostSystemInformation newSysinfo = null;
+                    try { newSysinfo = DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo); } catch { }
+
+                    Models.VMwareHostSystemInformation prevSysinfo = null;
+                    try { prevSysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.hostname); } catch { }
+
+                    if (prevSysinfo == null) prevSysinfo = new Models.VMwareHostSystemInformation() { hostname = hostinfo.hostname, vmHostnames = hostinfo.vmHostnames, responsive = 0 };
+
+                    if (newSysinfo != null) {
+                        if (prevSysinfo != null) newSysinfo.comments = prevSysinfo.comments;
+                        prevSysinfo = newSysinfo;
                     }
 
-                    sysinfos.Add(sysinfo);
-
+                    sysinfos.Add(prevSysinfo);
                 });
 
                 foreach (var sysinfo in sysinfos)
-                    DA.VMwareHostSystemInformationsDA.AddOrUpdate(sysinfo);
+                    DA.VMwareHostSystemInformationsDA.AddOrUpdate(sysinfo, sysinfo.comments == null);
 
                 list = sysinfos.ToArray().OrderBy(x => x.hostname).ToArray();
 

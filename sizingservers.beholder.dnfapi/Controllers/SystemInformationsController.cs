@@ -44,8 +44,10 @@ namespace sizingservers.beholder.dnfapi.Controllers {
             try {
                 systemInformation.comments = DA.SystemInformationsDA.Get(systemInformation.hostname).comments;
             }
-            catch { }
-            DA.SystemInformationsDA.AddOrUpdate(systemInformation);
+            catch {
+#warning Handle this.
+            }
+            DA.SystemInformationsDA.AddOrUpdate(systemInformation, systemInformation.comments == null);
 
             return Created("list", typeof(string)); //Return a 201. Tell the client that the post did happen and were it can be requested.
         }
@@ -60,9 +62,12 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             if (comments != null)
                 try {
-                    var systemInformation = DA.SystemInformationsDA.Get(hostname);
+                    Models.SystemInformation systemInformation = null;
+                    try { systemInformation = DA.SystemInformationsDA.Get(hostname); } catch { }
+                    if (systemInformation == null) systemInformation = new Models.SystemInformation() { hostname = hostname };
+
                     systemInformation.comments = comments;
-                    DA.SystemInformationsDA.AddOrUpdate(systemInformation);
+                    DA.SystemInformationsDA.AddOrUpdate(systemInformation, comments == null);
                 }
                 catch {
 #warning handle this
