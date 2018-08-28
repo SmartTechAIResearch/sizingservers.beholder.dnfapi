@@ -14,12 +14,7 @@ using System.Reflection;
 
 namespace sizingservers.beholder.dnfapi.DA {
     public static class SystemInformationsDA {
-        /// <summary>
-        /// Adds the or update.
-        /// </summary>
-        /// <param name="row">The row.</param>
-        /// <param name="excludeComments">if set to <c>true</c> exclude all fields containing the word "comments", not case-sensitive. This is needed for not overwritting user comments when retrieving sys info.</param>
-        public static void AddOrUpdate(SystemInformation row, bool excludeComments) {
+        public static void AddOrUpdate(SystemInformation row) {
             try {
                 var propNames = new List<string>();
                 var paramNames = new List<string>();
@@ -27,9 +22,6 @@ namespace sizingservers.beholder.dnfapi.DA {
 
                 int paramI = 0;
                 foreach (PropertyInfo propInfo in row.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
-                    if (excludeComments && propInfo.Name.ToLowerInvariant().Contains("comments")) {
-                        continue;
-                    }
                     propNames.Add(propInfo.Name);
 
                     string paramName = "@param" + (++paramI);

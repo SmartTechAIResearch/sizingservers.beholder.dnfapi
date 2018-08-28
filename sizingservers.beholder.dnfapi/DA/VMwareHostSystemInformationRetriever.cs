@@ -29,17 +29,13 @@ namespace sizingservers.beholder.dnfapi.DA {
             //Ignore invalid SSL certs.
             ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback((sender, certificate, chain, policyErrors) => { return true; });
         }
-        /// <summary>
-        /// Retrieves the specified host connection information. Throws exception when fails.
-        /// </summary>
-        /// <param name="hostConnectionInfo">The host connection information.</param>
-        /// <returns></returns>
         public static VMwareHostSystemInformation Retrieve(VMwareHostConnectionInfo hostConnectionInfo) {
             try {
                 var sysinfo = new VMwareHostSystemInformation();
 
                 sysinfo.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
                 sysinfo.responsive = 1;
+                sysinfo.comments = "";
                 sysinfo.vmHostnames = hostConnectionInfo.vmHostnames;
 
                 VimPortType service = null;
