@@ -65,9 +65,13 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             if (comments != null)
                 try {
-                    var systemInformation = DA.VMwareHostSystemInformationsDA.Get(hostname);
+                    Models.VMwareHostSystemInformation systemInformation = null;
+                    try { systemInformation = DA.VMwareHostSystemInformationsDA.Get(hostname); } catch { }
+
+                    if (systemInformation == null) systemInformation = new Models.VMwareHostSystemInformation() { hostname = hostname };
+
                     systemInformation.comments = comments;
-                    DA.VMwareHostSystemInformationsDA.AddOrUpdate(systemInformation);
+                    DA.VMwareHostSystemInformationsDA.AddOrUpdate(systemInformation, comments == null);
                 }
                 catch {
 #warning handle this
@@ -87,9 +91,9 @@ namespace sizingservers.beholder.dnfapi.Controllers {
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            DA.VMwareHostSystemInformationsDA.Remove(hostname);
+            
             DA.VMwareHostConnectionInfosDA.Remove(hostname);
+            DA.VMwareHostSystemInformationsDA.Remove(hostname);
 
             return StatusCode(System.Net.HttpStatusCode.NoContent); //Http PUT response --> 200 OK or 204 NoContent. Latter equals done.
         }

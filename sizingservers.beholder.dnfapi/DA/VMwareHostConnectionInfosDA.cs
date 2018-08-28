@@ -8,6 +8,10 @@ using System.Reflection;
 
 namespace sizingservers.beholder.dnfapi.DA {
     public static class VMwareHostConnectionInfosDA {
+        /// <summary>
+        /// Adds the or update.
+        /// </summary>
+        /// <param name="row">The row.</param>
         public static void AddOrUpdate(VMwareHostConnectionInfo row) {
             try {
                 var propNames = new List<string>();
@@ -23,6 +27,7 @@ namespace sizingservers.beholder.dnfapi.DA {
                     parameters.Add(new SQLiteParameter(paramName, propInfo.GetValue(row)));
 
                 }
+#warning Handle this better
                 if (row.username == ".&DO_NOT_UPDATE_Credentials&.") {
                     int fieldI = propNames.IndexOf("username");
                     propNames.RemoveAt(fieldI);
