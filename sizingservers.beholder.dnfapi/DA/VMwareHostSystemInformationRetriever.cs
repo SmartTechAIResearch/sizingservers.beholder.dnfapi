@@ -30,12 +30,14 @@ namespace sizingservers.beholder.dnfapi.DA {
             ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback((sender, certificate, chain, policyErrors) => { return true; });
         }
         /// <summary>
-        /// Retrieves the specified host connection information. Throws exception when fails.
+        /// Retrieves the specified host connection information. Throws exception when fails and disables the refresh (VMwareHostConnectionInfo = 0). Returns null when hostConnectionInfo.enabled == 0.
         /// </summary>
         /// <param name="hostConnectionInfo">The host connection information.</param>
         /// <returns></returns>
         public static VMwareHostSystemInformation Retrieve(VMwareHostConnectionInfo hostConnectionInfo) {
             try {
+                if (hostConnectionInfo.enabled == 0) return null;
+
                 var sysinfo = new VMwareHostSystemInformation();
 
                 sysinfo.timeStampInSecondsSinceEpochUtc = (long)(DateTime.UtcNow - _epochUtc).TotalSeconds;
@@ -70,9 +72,12 @@ namespace sizingservers.beholder.dnfapi.DA {
                 sysinfo.hostname = GetPropertyContent(service, serviceContent, "HostSystem", "summary.config.name", reference)[0].propSet[0].val.ToString();
                 if (string.IsNullOrEmpty(sysinfo.hostname)) sysinfo.hostname = hostConnectionInfo.hostname;
 
-                if (hostConnectionInfo.hostname != sysinfo.hostname) 
-                    VMwareHostConnectionInfosDA.ChangePKValue(hostConnectionInfo, sysinfo.hostname);               
-
+                if (hostConnectionInfo.hostname != sysinfo.hostname) {
+                    VMwareHostConnectionInfosDA.ChangePKValue(hostConnectionInfo, sysinfo.hostname);
+                    try {
+                        VMwareHostSystemInformationsDA.ChangePKValue(hostConnectionInfo.hostname, sysinfo.hostname);
+                    } catch { }
+                }
 
                 var vnics = GetPropertyContent(service, serviceContent, "HostSystem", "config.network.vnic", reference)[0].propSet[0].val as HostVirtualNic[];
                 var ips = new List<string>();
@@ -188,6 +193,15 @@ namespace sizingservers.beholder.dnfapi.DA {
             catch (Exception ex) {
                 //Let IIS handle the errors, but using own logging.
                 Loggers.Log(Level.Error, "Failed retrieving vhost system info", ex, new object[] { hostConnectionInfo });
+
+                hostConnectionInfo.enabled = 0;
+                try {
+                    VMwareHostConnectionInfosDA.AddOrUpdate(hostConnectionInfo);
+                }
+                catch {
+                    Loggers.Log(Level.Error, "Failed disabling vhost system info refresh in VMwareHostConnectionInfos", ex, new object[] { hostConnectionInfo });
+                }
+
                 throw;
             }
         }

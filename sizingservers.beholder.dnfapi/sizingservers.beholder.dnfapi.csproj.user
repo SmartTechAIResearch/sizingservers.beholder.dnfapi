@@ -19,7 +19,7 @@
     <WebStackScaffolding_IsAsyncSelected>True</WebStackScaffolding_IsAsyncSelected>
     <WebStackScaffolding_DbContextDialogWidth>600</WebStackScaffolding_DbContextDialogWidth>
     <WebStackScaffolding_DbContextTypeFullName>sizingservers.beholder.dnfapi.Models.DBContext</WebStackScaffolding_DbContextTypeFullName>
-    <NameOfLastUsedPublishProfile>FolderProfileRelease</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>FolderProfileDebug</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>

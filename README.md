@@ -22,6 +22,12 @@ Agents are installed on the computers you want to inventorize. These communicate
 
 <a name="version_history"></a>
 ## Version history
+**2018-08-28** - **version 0.3**: Comments and more robust  
+*Compatible with sizingservers.beholder.agent 0.1 / sizingservers.beholder.frontend 0.3*
+    
+    When upgrading from version 0.2, you must alter beholder.db for this to work:
+    * add a INTEGER field enabled to VMwareHostConnectionInfos and set it to 1 for all rows
+
 **2018-07-12** - **version 0.2**: Added vhost host name and IP discovery.  
 *Compatible with sizingservers.beholder.agent 0.1 / sizingservers.beholder.frontend 0.2*
 

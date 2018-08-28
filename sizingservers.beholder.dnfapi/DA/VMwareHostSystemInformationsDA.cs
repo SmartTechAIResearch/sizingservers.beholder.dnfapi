@@ -59,6 +59,16 @@ namespace sizingservers.beholder.dnfapi.DA {
             }
         }
 
+        public static void ChangePKValue(string oldHostname, string newHostname) {
+            try {
+                SQLiteDataAccess.ExecuteSQL("Update VMwareHostSystemInformations set hostname=@param1 where hostname=@param2", CommandType.Text, null, new SQLiteParameter[] { new SQLiteParameter("@param1", newHostname), new SQLiteParameter("@param2", oldHostname) });
+            }
+            catch (Exception ex) {
+                //Let IIS handle the errors, but using own logging.
+                Loggers.Log(Level.Error, "Failed changing the pk value in vhost system info", ex, new object[] { newHostname });
+                throw;
+            }
+        }
         public static void Remove(params VMwareHostSystemInformation[] rows) {
             try {
                 var hostnames = new string[rows.Length];

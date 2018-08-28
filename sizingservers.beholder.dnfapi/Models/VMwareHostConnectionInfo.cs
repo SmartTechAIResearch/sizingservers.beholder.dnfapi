@@ -28,10 +28,18 @@ namespace sizingservers.beholder.dnfapi.Models {
         public string password { get; set; }
 
         /// <summary>
+        /// Gets or sets enabling retrieving sysinfo from the VMware SDK. This value is set to false when retrieval fails and must be re-ebabled manually by updating connection info in the database. This is neccessary because ESXi locks logins when to many false login attempts happen. 
+        /// </summary>
+        /// <value>
+        /// The enabled.
+        /// </value>
+        public int enabled { get; set; }
+
+        /// <summary>
         /// No credentials in the tostring.
         /// </summary>
         public override string ToString() {
-            return "ipOfHostname: " + hostname + " vmHostnames: " + vmHostnames;
+            return "ipOrHostname: " + hostname + " vmHostnames: " + vmHostnames;
         }
 
     }

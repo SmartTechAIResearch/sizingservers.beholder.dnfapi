@@ -101,7 +101,11 @@ namespace sizingservers.beholder.dnfapi.Helpers {
                     try { newSysinfo = DA.VMwareHostSystemInformationRetriever.Retrieve(hostinfo); } catch { }
 
                     Models.VMwareHostSystemInformation prevSysinfo = null;
-                    try { prevSysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.hostname); } catch { }
+                    try {
+                        prevSysinfo = DA.VMwareHostSystemInformationsDA.Get(hostinfo.hostname);
+                        if (hostinfo.enabled == 0) prevSysinfo.responsive = 0;
+                    }
+                    catch { }
 
                     if (prevSysinfo == null) prevSysinfo = new Models.VMwareHostSystemInformation() { hostname = hostinfo.hostname, vmHostnames = hostinfo.vmHostnames, responsive = 0 };
 
